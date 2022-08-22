@@ -2,9 +2,6 @@
   "name": "gh-changelogen",
   "version": "0.0.0",
   "description": "Changelog generator for GitHub Releases",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "keywords": [
     "github",
     "changelog",
@@ -14,5 +11,35 @@
     "name": "kazuya kawaguchi",
     "email": "kawakazu80@gmail.com"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kazupon/gh-changeloggen.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kazupon/gh-changeloggen/issues"
+  },
+  "packageManager": "pnpm@7.9.3",
+  "engines": {
+    "node": ">= 14.18"
+  },
+  "scripts": {
+    "fix": "run-p lint:fix format:fix",
+    "format": "prettier --config .prettierrc.json --ignore-path .prettierignore --list-different '**/*.{js,ts,css,json,html}'",
+    "format:fix": "pnpm format --write",
+    "lint": "eslint --config .eslintrc.cjs --ext .js,.ts,.json .",
+    "lint:fix": "pnpm lint --fix"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/parser": "^5.33.1",
+    "eslint": "^8.22.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.7.1",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "npm-run-all": "^4.1.5"
+  }
 }
