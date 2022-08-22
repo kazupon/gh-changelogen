@@ -14,6 +14,16 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7.9.3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+          cache: 'pnpm'
+      - name: Install
+        run: pnpm install --no-frozen-lockfile
       - name: Extract version tag
         if: startsWith( github.ref, 'refs/tags/v' )
         run: echo ${{ github.ref }}
@@ -47,5 +57,6 @@ jobs:
           file_pattern: '*.md'
           commit_message: 'release: ${{ github.ref }}'
       - name: Publish
-        run: |
-          npm publish
+        run: ./scripts/release-edge.sh.
+        env:
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
