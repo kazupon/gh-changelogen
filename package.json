@@ -14,10 +14,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kazupon/gh-changeloggen.git"
+    "url": "git+https://github.com/kazupon/gh-changelogen.git"
   },
   "bugs": {
-    "url": "https://github.com/kazupon/gh-changeloggen/issues"
+    "url": "https://github.com/kazupon/gh-changelogen/issues"
   },
   "type": "module",
   "sideEffects": false,
