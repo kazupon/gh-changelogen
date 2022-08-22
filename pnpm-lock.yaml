@@ -8,6 +8,7 @@ specifiers:
   eslint: ^8.22.0
   eslint-config-prettier: ^8.5.0
   eslint-plugin-prettier: ^4.2.1
+  jiti: ^1.14.0
   lint-staged: ^13.0.3
   npm-run-all: ^4.1.5
   prettier: ^2.7.1
@@ -23,6 +24,7 @@ devDependencies:
   eslint: 8.22.0
   eslint-config-prettier: 8.5.0_eslint@8.22.0
   eslint-plugin-prettier: 4.2.1_i2cojdczqdiurzgttlwdgf764e
+  jiti: 1.14.0
   lint-staged: 13.0.3
   npm-run-all: 4.1.5
   prettier: 2.7.1
