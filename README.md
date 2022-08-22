@@ -2,6 +2,10 @@
 
 📜 Changelog generator for GitHub Releases
 
+## ⚠️ NOTICE
+
+This project is still **WIP**
+
 ## 💪 Motivation
 
 - GitHub Rleases is awesome, it automatically generates the changelog.
