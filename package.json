@@ -19,11 +19,33 @@
   "bugs": {
     "url": "https://github.com/kazupon/gh-changeloggen/issues"
   },
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "bin": "./cli.mjs",
+  "files": [
+    "dist",
+    "*.mjs"
+  ],
   "packageManager": "pnpm@7.9.3",
   "engines": {
     "node": ">= 14.18"
   },
   "scripts": {
+    "build": "unbuild",
+    "dev": "unbuild --stub",
+    "prepack": "unbuild",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "fix": "run-p lint:fix format:fix",
     "format": "prettier --config .prettierrc.json --ignore-path .prettierignore --list-different '**/*.{js,ts,css,json,html}'",
     "format:fix": "pnpm format --write",
@@ -40,9 +62,10 @@
     "lint-staged": "^13.0.3",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.7.1",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "unbuild": "^0.8.9",
+    "vitest": "^0.22.1"
   },
-  "dependencies": {},
   "gitHooks": {
     "pre-commit": "lint-staged"
   },
