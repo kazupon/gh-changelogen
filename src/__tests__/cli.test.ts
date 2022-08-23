@@ -1,3 +1,3 @@
-test.skip('cli', () => {
+test.todo('cli', () => {
   // TODO:
 })
