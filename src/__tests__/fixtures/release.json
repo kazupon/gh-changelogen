@@ -1,0 +1,7 @@
+{
+  "body": "<!-- Release notes generated using configuration in .github/release.yml at v0.0.1 -->\n\n## What's Changed\n### 🌟 Features\n* feat: first placeholder release by @kazupon in https://github.com/kazupon/gh-changelogen/pull/3\n\n## New Contributors\n* @renovate made their first contribution in https://github.com/kazupon/gh-changelogen/pull/1\n* @kazupon made their first contribution in https://github.com/kazupon/gh-changelogen/pull/3\n\n**Full Changelog**: https://github.com/kazupon/gh-changelogen/commits/v0.0.1",
+  "name": "v0.0.1",
+  "publishedAt": "2022-08-22T17:22:41Z",
+  "tagName": "v0.0.1",
+  "url": "https://github.com/kazupon/gh-changelogen/releases/tag/v0.0.1"
+}
