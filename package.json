@@ -48,7 +48,7 @@
     "test": "vitest run",
     "release": "bumpp --commit \"release: v%s\" --push --tag",
     "fix": "run-p lint:fix format:fix",
-    "format": "prettier --config .prettierrc.json --ignore-path .prettierignore --list-different '**/*.{js,ts,css,json,html}'",
+    "format": "prettier --config .prettierrc --ignore-path .prettierignore --list-different '**/*.{js,ts,css,json,html}'",
     "format:fix": "pnpm format --write",
     "lint": "eslint --config .eslintrc.cjs --ext .js,.ts,.json .",
     "lint:fix": "pnpm lint --fix"
@@ -75,14 +75,14 @@
   },
   "lint-staged": {
     "*.{json,md,yml}": [
-      "prettier --config .prettierrc.json --ignore-path .prettierignore --write"
+      "prettier --config .prettierrc --ignore-path .prettierignore --write"
     ],
     "*.{js,vue}": [
-      "prettier --config .prettierrc.json --ignore-path .prettierignore --write",
+      "prettier --config .prettierrc --ignore-path .prettierignore --write",
       "eslint --fix --ext .js"
     ],
     "*.ts?(x)": [
-      "prettier --config .prettierrc.json --ignore-path .prettierignore --parser=typescript --write",
+      "prettier --config .prettierrc --ignore-path .prettierignore --parser=typescript --write",
       "eslint --fix --ext .ts"
     ]
   },
