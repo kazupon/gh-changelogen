@@ -3,7 +3,6 @@ import { isFunction } from './utils'
 import type { GitHubRelease, Generator } from './types'
 
 function generatorDefault(release: GitHubRelease): Promise<string> {
-  console.log('generatorDefault', release)
   // prettier-ignore
   return Promise.resolve(`# ${release.name}${release.name !== release.tag_name ? ` ${release.tag_name}` : ''} (${release.published_at})
 
