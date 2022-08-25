@@ -55,6 +55,7 @@
   },
   "devDependencies": {
     "@nexhome/yorkie": "^2.0.8",
+    "@types/semver": "^7.3.12",
     "@typescript-eslint/eslint-plugin": "^5.33.1",
     "@typescript-eslint/parser": "^5.33.1",
     "bumpp": "^8.2.1",
@@ -84,5 +85,8 @@
       "prettier --config .prettierrc.json --ignore-path .prettierignore --parser=typescript --write",
       "eslint --fix --ext .ts"
     ]
+  },
+  "dependencies": {
+    "semver": "^7.3.7"
   }
 }
