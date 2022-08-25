@@ -1,12 +1,15 @@
 import { spawn } from 'node:child_process'
 import { fetchGithubRelease } from '../../fetcher'
+import { isFunction } from '../../utils'
 import release from '../fixtures/release.json'
 
 import type { ChildProcess } from 'node:child_process'
 import type { GitHubRelease, Fetcher } from '../../types'
 
-vi.mock('../../utils', () => {
+vi.mock('../../utils', async () => {
+  const { isFunction } = await vi.importActual('../../utils')
   return {
+    isFunction,
     existCommand: vi.fn().mockImplementation(() => Promise.resolve(true))
   }
 })

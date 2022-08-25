@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process'
-import { existCommand } from './utils'
+import { existCommand, isFunction } from './utils'
 
 import type { GitHubRelease, Fetcher } from './types'
 
@@ -23,7 +23,7 @@ async function fetcherDefault(tag: string): Promise<GitHubRelease> {
 }
 
 export async function fetchGithubRelease(tag: string, fetcher: Fetcher = fetcherDefault): Promise<GitHubRelease> {
-  if (typeof fetcher !== 'function') {
+  if (!isFunction(fetcher)) {
     throw new Error('fetcher is not a function')
   }
   return fetcher(tag)
