@@ -1,11 +1,12 @@
 import { generateChangelog } from '../../generator'
+import { normalizeGithubRelease } from '../../utils'
 import release from '../fixtures/release.json'
 
 import type { Generator } from '../../types'
 
 describe('generateChangelog', () => {
   test('default', async () => {
-    expect(await generateChangelog(release)).toMatchSnapshot()
+    expect(await generateChangelog(normalizeGithubRelease(release))).toMatchSnapshot()
   })
 
   test('custom generator', async () => {
@@ -16,7 +17,7 @@ describe('generateChangelog', () => {
       })
     }
 
-    expect(await generateChangelog(release, myGenerator)).toContain(release.name)
+    expect(await generateChangelog(normalizeGithubRelease(release), myGenerator)).toContain(release.name)
   })
 
   test.todo('not compatible generator', async () => {
@@ -24,6 +25,8 @@ describe('generateChangelog', () => {
     const myGenerator: Generator = 'not callable' as unknown as Generator
 
     // assertions
-    await expect(generateChangelog(release, myGenerator)).rejects.toThrow('generator is not a function')
+    await expect(generateChangelog(normalizeGithubRelease(release), myGenerator)).rejects.toThrow(
+      'generator is not a function'
+    )
   })
 })

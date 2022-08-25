@@ -1,15 +1,16 @@
 import { spawn } from 'node:child_process'
 import { fetchGithubRelease } from '../../fetcher'
-import { isFunction } from '../../utils'
+import { normalizeGithubRelease } from '../../utils'
 import release from '../fixtures/release.json'
 
 import type { ChildProcess } from 'node:child_process'
 import type { GitHubRelease, Fetcher } from '../../types'
 
 vi.mock('../../utils', async () => {
-  const { isFunction } = await vi.importActual('../../utils')
+  const { isFunction, normalizeGithubRelease } = await vi.importActual('../../utils')
   return {
     isFunction,
+    normalizeGithubRelease,
     existCommand: vi.fn().mockImplementation(() => Promise.resolve(true))
   }
 })
@@ -33,17 +34,17 @@ describe('fetchGithubRelease', () => {
     })
 
     // assertion
-    expect(await fetchGithubRelease(release.tagName)).toEqual(release)
+    expect(await fetchGithubRelease(release.tagName)).toEqual(normalizeGithubRelease(release))
   })
 
   test('custom fetcher', async () => {
-    const releaseData: GitHubRelease = {
+    const releaseData = {
       name: 'first release',
-      tagName: 'v0.0.0',
-      publishedAt: '2022-08-22T17:22:41Z',
+      tag_name: 'v0.0.0',
+      published_at: '2022-08-22T17:22:41Z',
       url: 'https://github.com/your/repo/releases/tag/v0.0.0',
       body: 'This is initial release'
-    }
+    } as GitHubRelease
 
     // custom fetcher (e.g GitHub API)
     const myFetcher: Fetcher = async (tag: string) => {
@@ -54,7 +55,7 @@ describe('fetchGithubRelease', () => {
     }
 
     // assertion
-    expect(await fetchGithubRelease(releaseData.tagName, myFetcher)).toEqual(releaseData)
+    expect(await fetchGithubRelease(releaseData.tag_name, myFetcher)).toEqual(releaseData)
   })
 
   test('not compatible fetcher', async () => {

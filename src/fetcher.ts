@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process'
-import { existCommand, isFunction } from './utils'
+import { existCommand, isFunction, normalizeGithubRelease } from './utils'
 
 import type { GitHubRelease, Fetcher } from './types'
 
@@ -10,11 +10,28 @@ async function fetcherDefault(tag: string): Promise<GitHubRelease> {
 
   return new Promise((resolve, reject) => {
     try {
-      const child = spawn('gh', ['release', 'view', tag, '--json', 'tagName,name,url,publishedAt,body'], {
+      const fields = [
+        'assets',
+        'author',
+        'body',
+        'createdAt',
+        'id',
+        'isDraft',
+        'isPrerelease',
+        'name',
+        'publishedAt',
+        'tagName',
+        'tarballUrl',
+        'targetCommitish',
+        'uploadUrl',
+        'url',
+        'zipballUrl'
+      ]
+      const child = spawn('gh', ['release', 'view', tag, '--json', fields.join(',')], {
         env: { ...process.env }
       })
       child.stdout.on('data', data => {
-        resolve(JSON.parse(data) as GitHubRelease)
+        resolve(normalizeGithubRelease(JSON.parse(data)))
       })
     } catch (e) {
       reject(e)
