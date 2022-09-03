@@ -1,7 +1,5 @@
 import { spawn } from 'node:child_process'
 
-import type { GitHubRelease, GitHubUser } from './types'
-
 export function existCommand(command: string): Promise<boolean> {
   return new Promise((resolve, reject) => {
     try {
