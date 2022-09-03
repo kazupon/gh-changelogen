@@ -19,7 +19,7 @@ describe('generateChangelog', () => {
     expect(await generateChangelog(release as unknown as GitHubRelease, myGenerator)).toContain(release.name)
   })
 
-  test.todo('not compatible generator', async () => {
+  test('not compatible generator', async () => {
     // not callable generator
     const myGenerator: Generator = 'not callable' as unknown as Generator
 
