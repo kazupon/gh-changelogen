@@ -1,40 +1,26 @@
-import { spawn } from 'node:child_process'
+import { $fetch } from 'ohmyfetch'
 import { fetchGithubRelease } from '../../fetcher'
-import { normalizeGithubRelease } from '../../utils'
 import release from '../fixtures/release.json'
 
-import type { ChildProcess } from 'node:child_process'
-import type { GitHubRelease, Fetcher } from '../../types'
+import type { GitHubRelease, Fetcher, FetcherOptions } from '../../types'
 
-vi.mock('../../utils', async () => {
-  const { isFunction, normalizeGithubRelease } = await vi.importActual('../../utils')
+vi.mock('ohmyfetch', async () => {
   return {
-    isFunction,
-    normalizeGithubRelease,
-    existCommand: vi.fn().mockImplementation(() => Promise.resolve(true))
-  }
-})
-
-vi.mock('node:child_process', () => {
-  return {
-    spawn: vi.fn()
+    $fetch: vi.fn()
   }
 })
 
 describe('fetchGithubRelease', () => {
   test('default', async () => {
     // mocking
-    const on = vi.fn().mockImplementationOnce((event: string, cb: Function) => {
-      if (event === 'data') {
-        cb(JSON.stringify(release))
-      }
-    })
-    vi.mocked(spawn).mockImplementationOnce(() => {
-      return { stdout: { on } } as unknown as ChildProcess
+    vi.mocked($fetch).mockImplementationOnce(() => {
+      return Promise.resolve(release)
     })
 
     // assertion
-    expect(await fetchGithubRelease(release.tagName)).toEqual(normalizeGithubRelease(release))
+    expect(
+      await fetchGithubRelease(release.tag_name, { github: 'kazupon/gh-changelogen', token: 'foo' } as FetcherOptions)
+    ).toEqual(release)
   })
 
   test('custom fetcher', async () => {
@@ -55,7 +41,7 @@ describe('fetchGithubRelease', () => {
     }
 
     // assertion
-    expect(await fetchGithubRelease(releaseData.tag_name, myFetcher)).toEqual(releaseData)
+    expect(await fetchGithubRelease(releaseData.tag_name, { fetcher: myFetcher })).toEqual(releaseData)
   })
 
   test('not compatible fetcher', async () => {
@@ -63,6 +49,8 @@ describe('fetchGithubRelease', () => {
     const myFetcher: Fetcher = 'not callable' as unknown as Fetcher
 
     // assertions
-    await expect(fetchGithubRelease(release.tagName, myFetcher)).rejects.toThrow('fetcher is not a function')
+    await expect(fetchGithubRelease(release.tag_name, { fetcher: myFetcher })).rejects.toThrow(
+      'fetcher is not a function'
+    )
   })
 })
