@@ -1,1 +1,1 @@
-console.log("I'm gh-changelogen")
+export * from './types'
