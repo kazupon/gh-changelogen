@@ -34,8 +34,16 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 7.9.3
+
       - name: Generate changelog
-        run: npx gh-changelogen --repo=kazupon/gh-changelogen --tag=${{ steps.split.outputs._2 }}
+        run: |
+          pnpm install --no-frozen-lockfile
+          pnpm build
+          ./cli.mjs --repo=kazupon/gh-changelogen --tag=${{ steps.split.outputs._2 }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -45,11 +53,6 @@ jobs:
           branch: main
           file_pattern: '*.md'
           commit_message: 'chore: sync changelog'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 7.9.3
 
       - name: Publish package
         run: ./scripts/release.sh
