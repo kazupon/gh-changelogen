@@ -48,6 +48,10 @@ If you won’t specify `-token`, `gh-changelogen` respect `GITHUB_TOKEN` env.
 - Github Releases cannot sync changelog of repo.
 - So I need tool to generate Github Releases as the **single-of-truth** for changelog.
 
+## 🙌 Contributing guidelines
+
+If you are interested in contributing to `gh-changelogen`, I highly recommend checking out [the contributing guidelines](/CONTRIBUTING.md) here. You'll find all the relevant information such as [how to make a PR](/CONTRIBUTING.md#pull-request-guidelines), [how to setup development](/CONTRIBUTING.md#development-setup)) etc., there.
+
 ## ©️ License
 
 [MIT](https://opensource.org/licenses/MIT)
