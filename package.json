@@ -12,6 +12,7 @@
     "email": "kawakazu80@gmail.com"
   },
   "license": "MIT",
+  "funding": "https://github.com/sponsors/kazupon",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kazupon/gh-changelogen.git"
