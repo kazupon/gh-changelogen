@@ -42,7 +42,9 @@ jobs:
 
       - name: Generate changelog
         run: |
-          npx gh-changelogen --repo=kazupon/gh-changelogen --tag=${{ steps.split.outputs._2 }}
+          pnpm install --no-frozen-lockfile
+          pnpm build
+          ./cli.mjs --repo=kazupon/gh-changelogen --tag=${{ steps.split.outputs._2 }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
