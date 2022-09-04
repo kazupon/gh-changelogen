@@ -24,8 +24,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
+          registry-url: https://registry.npmjs.org/
           node-version: 16.x
-          cache: 'pnpm'
 
       - name: Extract version tag
         if: startsWith( github.ref, 'refs/tags/v' )
