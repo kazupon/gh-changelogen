@@ -7,6 +7,7 @@ import { generateChangelog } from './generator'
 import { isExists } from './utils'
 
 const GITHUB_TOKEN_KEY = 'GITHUB_TOKEN' as const
+const DEFAULT_CHANGELOG_FILE = 'CHANGELOG.md' as const
 
 function parse(args: string[]) {
   return _parse(
@@ -17,12 +18,14 @@ function parse(args: string[]) {
         tag: z.string().describe('GitHub release tag (e.g. `v0.0.1`)'),
         output: z
           .string()
-          .default('CHANGELOG.md')
-          .describe('Changelog file name to create or update. defaults to `CHANGELOG.md` and resolved relative'),
+          .default(DEFAULT_CHANGELOG_FILE)
+          .describe(
+            `Changelog file name to create or update. defaults to '${DEFAULT_CHANGELOG_FILE}' and resolved relative`
+          ),
         token: z
           .string()
-          .default('GITHUB_TOKEN')
-          .describe('GitHub token, if you won’t specify, respect `GITHUB_TOKEN` env')
+          .default(GITHUB_TOKEN_KEY)
+          .describe(`GitHub token, if you won’t specify, respect '${GITHUB_TOKEN_KEY}' env`)
       },
       // e.g. --flagA, --flagB
       flags: {},
@@ -53,7 +56,7 @@ export async function main(args: string[]) {
   if (token === GITHUB_TOKEN_KEY) {
     token = process.env.GITHUB_TOKEN || ''
     if (!token) {
-      throw new Error('Not found GITHUB_TOKEN in env')
+      throw new Error(`Not found ${GITHUB_TOKEN_KEY} in env`)
     }
   }
 
