@@ -13,10 +13,16 @@ function parse(args: string[]) {
     {
       // e.g. --key value | --key=value
       options: {
-        repo: z.string().describe('GitHub repository name (e.g. owner/repo)'),
-        tag: z.string().describe('GitHub Release tag'),
-        output: z.string().default('CHANGELOG.md').describe('Updagte changelog file path'),
-        token: z.string().default('GITHUB_TOKEN').describe('GitHub token')
+        repo: z.string().describe('GitHub repository name, format `owner/repo` (e.g. `kazupon/gh-changelogen`)'),
+        tag: z.string().describe('GitHub release tag (e.g. `v0.0.1`)'),
+        output: z
+          .string()
+          .default('CHANGELOG.md')
+          .describe('Changelog file name to create or update. defaults to `CHANGELOG.md` and resolved relative'),
+        token: z
+          .string()
+          .default('GITHUB_TOKEN')
+          .describe('GitHub token, if you won’t specify, respect `GITHUB_TOKEN` env')
       },
       // e.g. --flagA, --flagB
       flags: {},
