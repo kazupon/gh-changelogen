@@ -99,7 +99,7 @@ jobs:
           commit_message: 'chore: sync changelog'
 
       - name: Publish package
-	run: npm publish
+        run: npm publish
         env:
           NPM_TOKEN: ${{secrets.NPM_TOKEN}}
 ```
