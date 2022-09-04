@@ -1,3 +1,4 @@
+import { vi } from 'vitest'
 import { $fetch } from 'ohmyfetch'
 import { fetchGithubRelease } from '../../fetcher'
 import release from '../fixtures/release.json'

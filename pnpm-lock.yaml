@@ -2,6 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@nexhome/yorkie': ^2.0.8
+  '@types/node': ^18.7.14
   '@types/semver': ^7.3.12
   '@typescript-eslint/eslint-plugin': ^5.36.1
   '@typescript-eslint/parser': ^5.36.1
@@ -19,13 +20,18 @@ specifiers:
   typescript: ^4.8.2
   unbuild: ^0.8.10
   vitest: ^0.22.1
+  zod: ^3.18.0
+  zodiarg: ^0.2.1
 
 dependencies:
   ohmyfetch: 0.4.18
   semver: 7.3.7
+  zod: 3.18.0
+  zodiarg: 0.2.1_zod@3.18.0
 
 devDependencies:
   '@nexhome/yorkie': 2.0.8
+  '@types/node': 18.7.14
   '@types/semver': 7.3.12
   '@typescript-eslint/eslint-plugin': 5.36.1_lbwfnm54o3pmr3ypeqp3btnera
   '@typescript-eslint/parser': 5.36.1_yqf6kl63nyoq5megxukfnom5rm
@@ -3467,3 +3473,15 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
+
+  /zod/3.18.0:
+    resolution: {integrity: sha512-gwTm8RfUCe8l9rDwN5r2A17DkAa8Ez4Yl4yXqc5VqeGaXaJahzYYXbTwvhroZi0SNBqTwh/bKm2N0mpCzuw4bA==}
+    dev: false
+
+  /zodiarg/0.2.1_zod@3.18.0:
+    resolution: {integrity: sha512-Vbd8aW709iKX0XbMvjYkyjQYDBvWKedaUWNelcNeO1OxVYJ8jqUpj6lRBoO0PtN3b1DM6Ykz+hf9Y8e9pczmLQ==}
+    peerDependencies:
+      zod: 3.*
+    dependencies:
+      zod: 3.18.0
+    dev: false
