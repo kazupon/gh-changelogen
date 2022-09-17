@@ -3,7 +3,7 @@
  *
  * @see https://docs.github.com/en/rest/releases/releases
  */
-export type GitHubRelease = {
+export interface GitHubRelease {
   assets: GitHubAsset[]
   author: GitHubUser
   body: string
@@ -23,12 +23,12 @@ export type GitHubRelease = {
 }
 
 // TODO:
-export type GitHubAsset = {
+export interface GitHubAsset {
   id: number
 }
 
 // TODO:
-export type GitHubUser = {
+export interface GitHubUser {
   id: number
   login: string
 }

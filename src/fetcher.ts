@@ -1,4 +1,5 @@
 import { $fetch } from 'ohmyfetch'
+
 import { isFunction } from './utils'
 
 import type { GitHubRelease, Fetcher, FetcherOptions } from './types'
