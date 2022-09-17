@@ -1,7 +1,9 @@
-import z from 'zod'
-import { parse as _parse } from 'zodiarg'
 import { promises as fs } from 'node:fs'
 import { resolve } from 'node:path'
+
+import z from 'zod'
+import { parse as _parse } from 'zodiarg'
+
 import { fetchGithubRelease } from './fetcher'
 import { generateChangelog } from './generator'
 import { isExists } from './utils'
