@@ -37,7 +37,7 @@
     "dist",
     "*.mjs"
   ],
-  "packageManager": "pnpm@7.29.2",
+  "packageManager": "pnpm@7.29.3",
   "engines": {
     "node": ">= 14.18"
   },
