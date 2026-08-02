@@ -22,12 +22,12 @@ export interface GitHubRelease {
   zipball_url: string
 }
 
-// TODO:
+// Minimal asset shape required by the current public API.
 export interface GitHubAsset {
   id: number
 }
 
-// TODO:
+// Minimal user shape required by the current public API.
 export interface GitHubUser {
   id: number
   login: string

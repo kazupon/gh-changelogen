@@ -16,7 +16,9 @@ describe('generateChangelog', () => {
       })
     }
 
-    expect(await generateChangelog(release as unknown as GitHubRelease, myGenerator)).toContain(release.name)
+    expect(await generateChangelog(release as unknown as GitHubRelease, myGenerator)).toContain(
+      release.name
+    )
   })
 
   test('not compatible generator', async () => {
@@ -24,8 +26,8 @@ describe('generateChangelog', () => {
     const myGenerator: Generator = 'not callable' as unknown as Generator
 
     // assertions
-    await expect(generateChangelog(release as unknown as GitHubRelease, myGenerator)).rejects.toThrow(
-      'generator is not a function'
-    )
+    await expect(
+      generateChangelog(release as unknown as GitHubRelease, myGenerator)
+    ).rejects.toThrow('generator is not a function')
   })
 })

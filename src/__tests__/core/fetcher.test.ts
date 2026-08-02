@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import { vi } from 'vite-plus/test'
 import { $fetch } from 'ohmyfetch'
 import { fetchGithubRelease } from '../../fetcher'
 import release from '../fixtures/release.json'
@@ -7,7 +7,7 @@ import type { GitHubRelease, Fetcher, FetcherOptions } from '../../types'
 
 vi.mock('ohmyfetch', async () => {
   return {
-    $fetch: vi.fn()
+    $fetch: vi.fn<typeof $fetch>()
   }
 })
 
@@ -20,7 +20,10 @@ describe('fetchGithubRelease', () => {
 
     // assertion
     expect(
-      await fetchGithubRelease(release.tag_name, { github: 'kazupon/gh-changelogen', token: 'foo' } as FetcherOptions)
+      await fetchGithubRelease(release.tag_name, {
+        github: 'kazupon/gh-changelogen',
+        token: 'foo'
+      } as FetcherOptions)
     ).toEqual(release)
   })
 
@@ -34,7 +37,7 @@ describe('fetchGithubRelease', () => {
     } as GitHubRelease
 
     // custom fetcher (e.g GitHub API)
-    const myFetcher: Fetcher = async (tag: string) => {
+    const myFetcher: Fetcher = async () => {
       return new Promise(resolve => {
         // api call ...
         setTimeout(() => resolve(releaseData), 100)
@@ -42,7 +45,9 @@ describe('fetchGithubRelease', () => {
     }
 
     // assertion
-    expect(await fetchGithubRelease(releaseData.tag_name, { fetcher: myFetcher })).toEqual(releaseData)
+    expect(await fetchGithubRelease(releaseData.tag_name, { fetcher: myFetcher })).toEqual(
+      releaseData
+    )
   })
 
   test('not compatible fetcher', async () => {

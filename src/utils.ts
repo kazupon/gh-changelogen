@@ -16,8 +16,7 @@ export function existCommand(command: string): Promise<boolean> {
   })
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function isFunction(value: unknown): value is Function {
+export function isFunction(value: unknown): value is (...args: never[]) => unknown {
   return typeof value === 'function'
 }
 

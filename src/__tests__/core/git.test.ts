@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import { vi } from 'vite-plus/test'
 import { spawn } from 'node:child_process'
 import { gitTags } from '../../git'
 import { existCommand } from '../../utils'
@@ -7,13 +7,13 @@ import type { ChildProcess } from 'node:child_process'
 
 vi.mock('../../utils', () => {
   return {
-    existCommand: vi.fn().mockImplementation(() => Promise.resolve(true))
+    existCommand: vi.fn<typeof existCommand>().mockImplementation(() => Promise.resolve(true))
   }
 })
 
 vi.mock('node:child_process', () => {
   return {
-    spawn: vi.fn()
+    spawn: vi.fn<typeof spawn>()
   }
 })
 
@@ -22,11 +22,13 @@ describe('gitTags', () => {
     const tags = ['0.0.1', '0.0.2.12344', 'v0.1.0']
 
     // mocking
-    const on = vi.fn().mockImplementationOnce((event: string, cb: Function) => {
-      if (event === 'data') {
-        cb(tags.join('\n'))
-      }
-    })
+    const on = vi
+      .fn<(event: string, cb: (value: string) => void) => void>()
+      .mockImplementationOnce((event, cb) => {
+        if (event === 'data') {
+          cb(tags.join('\n'))
+        }
+      })
     vi.mocked(spawn).mockImplementationOnce(() => {
       return { exitCode: null, stdout: { on } } as unknown as ChildProcess
     })
@@ -37,11 +39,13 @@ describe('gitTags', () => {
 
   test('empty string', async () => {
     // mocking
-    const on = vi.fn().mockImplementationOnce((event: string, cb: Function) => {
-      if (event === 'data') {
-        cb('')
-      }
-    })
+    const on = vi
+      .fn<(event: string, cb: (value: string) => void) => void>()
+      .mockImplementationOnce((event, cb) => {
+        if (event === 'data') {
+          cb('')
+        }
+      })
     vi.mocked(spawn).mockImplementationOnce(() => {
       return { exitCode: null, stdout: { on } } as unknown as ChildProcess
     })
@@ -54,11 +58,13 @@ describe('gitTags', () => {
     const tags = ['0.0.1', '0.0.2.12344', 'v0.1.0']
 
     // mocking
-    const on = vi.fn().mockImplementationOnce((event: string, cb: Function) => {
-      if (event === 'data') {
-        cb(tags.join('\t'))
-      }
-    })
+    const on = vi
+      .fn<(event: string, cb: (value: string) => void) => void>()
+      .mockImplementationOnce((event, cb) => {
+        if (event === 'data') {
+          cb(tags.join('\t'))
+        }
+      })
     vi.mocked(spawn).mockImplementationOnce(() => {
       return { exitCode: null, stdout: { on } } as unknown as ChildProcess
     })
@@ -71,11 +77,13 @@ describe('gitTags', () => {
     const tags = ['0.0.1', '0.0.2.12344', 'next', 'v0.1.0']
 
     // mocking
-    const on = vi.fn().mockImplementationOnce((event: string, cb: Function) => {
-      if (event === 'data') {
-        cb(tags.join('\n'))
-      }
-    })
+    const on = vi
+      .fn<(event: string, cb: (value: string) => void) => void>()
+      .mockImplementationOnce((event, cb) => {
+        if (event === 'data') {
+          cb(tags.join('\n'))
+        }
+      })
     vi.mocked(spawn).mockImplementationOnce(() => {
       return { exitCode: null, stdout: { on } } as unknown as ChildProcess
     })
@@ -99,6 +107,6 @@ describe('gitTags', () => {
     })
 
     // assertions
-    await expect(gitTags()).rejects.toThrow()
+    await expect(gitTags()).rejects.toThrow('unexpteced error')
   })
 })

@@ -3,25 +3,33 @@
   "version": "1.0.0",
   "description": "Changelog generator for GitHub Releases",
   "keywords": [
-    "github",
     "changelog",
+    "github",
     "release"
   ],
+  "bugs": {
+    "url": "https://github.com/kazupon/gh-changelogen/issues"
+  },
+  "license": "MIT",
   "author": {
     "name": "kazuya kawaguchi",
     "email": "kawakazu80@gmail.com"
   },
-  "license": "MIT",
-  "funding": "https://github.com/sponsors/kazupon",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/kazupon/gh-changelogen.git"
   },
-  "bugs": {
-    "url": "https://github.com/kazupon/gh-changelogen/issues"
-  },
+  "funding": "https://github.com/sponsors/kazupon",
+  "bin": "./cli.mjs",
+  "files": [
+    "dist",
+    "*.mjs"
+  ],
   "type": "module",
   "sideEffects": false,
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -29,17 +37,38 @@
       "import": "./dist/index.mjs"
     }
   },
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.ts",
-  "bin": "./cli.mjs",
-  "files": [
-    "dist",
-    "*.mjs"
-  ],
-  "packageManager": "pnpm@11.17.0",
-  "engines": {
-    "node": ">= 14.18"
+  "scripts": {
+    "build": "vp pack",
+    "dev": "vp pack --watch",
+    "prepack": "vp pack",
+    "typecheck": "vp check --no-fmt --no-lint",
+    "test": "vp test",
+    "release": "bumpp --commit \"release: v%s\" --push --tag",
+    "check": "vp check",
+    "fix": "vp check --fix",
+    "format": "vp fmt --check",
+    "format:fix": "vp fmt --write",
+    "lint": "vp lint",
+    "lint:fix": "vp lint --fix",
+    "deadcode": "ts-prune -e --ignore src/index.ts",
+    "prepare": "vp config"
+  },
+  "dependencies": {
+    "ohmyfetch": "^0.4.18",
+    "semver": "^7.3.7",
+    "zod": "^3.18.0",
+    "zodiarg": "^0.2.1"
+  },
+  "devDependencies": {
+    "@kazupon/vp-config": "^0.5.1",
+    "@types/node": "^18.7.14",
+    "@types/semver": "^7.3.12",
+    "bumpp": "^8.2.1",
+    "pkg-pr-new": "^0.0.78",
+    "ts-prune": "^0.10.3",
+    "typescript": "^6.0.0",
+    "vite": "catalog:",
+    "vite-plus": "catalog:"
   },
   "devEngines": {
     "runtime": {
@@ -48,65 +77,8 @@
       "onFail": "download"
     }
   },
-  "scripts": {
-    "build": "unbuild",
-    "dev": "unbuild --stub",
-    "prepack": "unbuild",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "release": "bumpp --commit \"release: v%s\" --push --tag",
-    "fix": "run-p lint:fix format:fix",
-    "format": "prettier --config .prettierrc --ignore-path .prettierignore --list-different '**/*.{js,ts,css,json,html}'",
-    "format:fix": "pnpm format --write",
-    "lint": "eslint --config .eslintrc.cjs --ext .js,.ts,.json .",
-    "lint:fix": "pnpm lint --fix",
-    "deadcode": "ts-prune -e --ignore src/index.ts"
+  "engines": {
+    "node": ">= 14.18"
   },
-  "devDependencies": {
-    "@kazupon/vp-config": "^0.5.1",
-    "@nexhome/yorkie": "^2.0.8",
-    "@types/node": "^18.7.14",
-    "@types/semver": "^7.3.12",
-    "@typescript-eslint/eslint-plugin": "^5.36.1",
-    "@typescript-eslint/parser": "^5.36.1",
-    "bumpp": "^8.2.1",
-    "eslint": "^8.23.0",
-    "eslint-config-prettier": "^8.5.0",
-    "eslint-import-resolver-typescript": "^3.5.1",
-    "eslint-plugin-import": "^2.26.0",
-    "eslint-plugin-prettier": "^4.2.1",
-    "jiti": "^1.14.0",
-    "lint-staged": "^13.0.3",
-    "npm-run-all2": "^5.0.0",
-    "pkg-pr-new": "^0.0.78",
-    "prettier": "^2.7.1",
-    "ts-prune": "^0.10.3",
-    "typescript": "^6.0.0",
-    "unbuild": "^0.9.0",
-    "vite": "catalog:",
-    "vite-plus": "catalog:",
-    "vitest": "^0.34.0"
-  },
-  "gitHooks": {
-    "pre-commit": "lint-staged"
-  },
-  "lint-staged": {
-    "*.{json,md,yml}": [
-      "prettier --config .prettierrc --ignore-path .prettierignore --write"
-    ],
-    "*.{js,vue}": [
-      "prettier --config .prettierrc --ignore-path .prettierignore --write",
-      "eslint --fix --ext .js"
-    ],
-    "*.ts?(x)": [
-      "prettier --config .prettierrc --ignore-path .prettierignore --parser=typescript --write",
-      "eslint --fix --ext .ts"
-    ]
-  },
-  "dependencies": {
-    "ohmyfetch": "^0.4.18",
-    "semver": "^7.3.7",
-    "zod": "^3.18.0",
-    "zodiarg": "^0.2.1"
-  }
+  "packageManager": "pnpm@11.17.0"
 }

@@ -11,12 +11,30 @@ import { isExists } from './utils'
 const GITHUB_TOKEN_KEY = 'GITHUB_TOKEN' as const
 const DEFAULT_CHANGELOG_FILE = 'CHANGELOG.md' as const
 
+interface CliInput {
+  options: {
+    repo: string
+    tag: string
+    output: string
+    token: string
+  }
+}
+
+// `zodiarg` ships TypeScript 4 declarations that recursively instantiate under TypeScript 6.
+const parseCliArgs = _parse as unknown as (
+  schema: unknown,
+  args: string[],
+  options: { helpWithNoArgs: boolean; help: boolean }
+) => CliInput
+
 function parse(args: string[]) {
-  return _parse(
+  return parseCliArgs(
     {
       // e.g. --key value | --key=value
       options: {
-        repo: z.string().describe('GitHub repository name, format `owner/repo` (e.g. `kazupon/gh-changelogen`)'),
+        repo: z
+          .string()
+          .describe('GitHub repository name, format `owner/repo` (e.g. `kazupon/gh-changelogen`)'),
         tag: z.string().describe('GitHub release tag (e.g. `v0.0.1`)'),
         output: z
           .string()
