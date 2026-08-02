@@ -39,3 +39,4 @@ package-lock.json
 yarn.lock
 
 src/__tests__/fixtures/output/**.md
+.plans
