@@ -1,6 +1,6 @@
 {
   "name": "gh-changelogen",
-  "version": "0.2.9",
+  "version": "1.0.0",
   "description": "Changelog generator for GitHub Releases",
   "keywords": [
     "github",
