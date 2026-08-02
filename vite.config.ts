@@ -49,6 +49,8 @@ export default defineConfig({
   fmt: defineFmtConfig({
     ignorePatterns: [
       'CHANGELOG.md',
+      'CODE_OF_CONDUCT.md',
+      'README.md',
       'dist/**',
       'coverage/**',
       'src/__tests__/fixtures/output/**',

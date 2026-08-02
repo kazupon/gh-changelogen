@@ -22,9 +22,21 @@ try {
     JSON.stringify({ name: 'gh-changelogen-package-smoke', private: true, type: 'module' })
   )
 
-  run('npm', ['install', '--production', '--ignore-scripts', '--no-audit', '--no-fund', '--no-package-lock', tarball], {
-    cwd: consumerDirectory
-  })
+  run(
+    'npm',
+    [
+      'install',
+      '--production',
+      '--ignore-scripts',
+      '--no-audit',
+      '--no-fund',
+      '--no-package-lock',
+      tarball
+    ],
+    {
+      cwd: consumerDirectory
+    }
+  )
 
   const packageDirectory = join(consumerDirectory, 'node_modules', 'gh-changelogen')
   const packageJson = JSON.parse(await readFile(join(packageDirectory, 'package.json'), 'utf8'))
@@ -69,7 +81,9 @@ try {
     { cwd: consumerDirectory }
   )
 
-  const help = run(process.execPath, [join(packageDirectory, 'cli.mjs')], { cwd: consumerDirectory })
+  const help = run(process.execPath, [join(packageDirectory, 'cli.mjs')], {
+    cwd: consumerDirectory
+  })
   assert.match(help.stdout, /OPTIONS:/)
   assert.match(help.stdout, /--repo <string>/)
   assert.match(help.stdout, /--tag <string>/)
@@ -95,7 +109,11 @@ function run(command, args, options) {
 
   if (result.status !== 0) {
     throw new Error(
-      [`Command failed (${result.status}): ${command} ${args.join(' ')}`, result.stdout, result.stderr]
+      [
+        `Command failed (${result.status}): ${command} ${args.join(' ')}`,
+        result.stdout,
+        result.stderr
+      ]
         .filter(Boolean)
         .join('\n')
     )
