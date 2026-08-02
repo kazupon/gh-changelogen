@@ -50,7 +50,7 @@
     "format:fix": "vp fmt --write",
     "lint": "vp lint",
     "lint:fix": "vp lint --fix",
-    "deadcode": "ts-prune -e --ignore src/index.ts",
+    "deadcode": "knip",
     "prepare": "vp config"
   },
   "dependencies": {
@@ -64,8 +64,8 @@
     "@types/node": "^18.7.14",
     "@types/semver": "^7.3.12",
     "bumpp": "^12.0.0",
+    "knip": "^6.16.1",
     "pkg-pr-new": "^0.0.86",
-    "ts-prune": "^0.10.3",
     "typescript": "^6.0.0",
     "vite": "catalog:",
     "vite-plus": "catalog:"
