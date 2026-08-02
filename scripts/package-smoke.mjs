@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { constants } from 'node:fs'
-import { access, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises'
+import { access, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 
@@ -40,7 +40,19 @@ try {
 
   const packageDirectory = join(consumerDirectory, 'node_modules', 'gh-changelogen')
   const packageJson = JSON.parse(await readFile(join(packageDirectory, 'package.json'), 'utf8'))
-  const expectedFiles = [
+  const expectedPackageFiles = [
+    'LICENSE',
+    'README.md',
+    'cli.mjs',
+    'dist/cli.cjs',
+    'dist/cli.d.ts',
+    'dist/cli.mjs',
+    'dist/index.cjs',
+    'dist/index.d.ts',
+    'dist/index.mjs',
+    'package.json'
+  ]
+  const expectedBuildFiles = [
     'dist/index.mjs',
     'dist/index.cjs',
     'dist/index.d.ts',
@@ -49,7 +61,10 @@ try {
     'dist/cli.d.ts'
   ]
 
-  await Promise.all(expectedFiles.map(file => access(join(packageDirectory, file), constants.R_OK)))
+  assert.deepEqual(await listFiles(packageDirectory), expectedPackageFiles)
+  await Promise.all(
+    expectedBuildFiles.map(file => access(join(packageDirectory, file), constants.R_OK))
+  )
 
   assert.deepEqual(packageJson.exports['.'], {
     types: './dist/index.d.ts',
@@ -120,4 +135,19 @@ function run(command, args, options) {
   }
 
   return result
+}
+
+async function listFiles(directory, prefix = '') {
+  const files = []
+
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name
+    if (entry.isDirectory()) {
+      files.push(...(await listFiles(join(directory, entry.name), relativePath)))
+    } else {
+      files.push(relativePath)
+    }
+  }
+
+  return files.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
 }
