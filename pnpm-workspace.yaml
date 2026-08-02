@@ -1,0 +1,15 @@
+catalog:
+  vite: npm:@voidzero-dev/vite-plus-core@0.2.6
+  vite-plus: 0.2.6
+allowBuilds:
+  '@nexhome/yorkie': set this to true or false
+  esbuild: true
+  unrs-resolver: true
+overrides:
+  vite: 'catalog:'
+peerDependencyRules:
+  allowAny:
+    - vite
+  allowedVersions:
+    '@types/node': '*'
+    vite: '*'

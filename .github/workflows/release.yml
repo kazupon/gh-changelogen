@@ -26,7 +26,9 @@ on:
         required: true
 
 env:
+  CI: true
   TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+  VITE_GIT_HOOKS: '0'
 
 permissions: {}
 
@@ -38,10 +40,10 @@ jobs:
   npm-publish:
     name: Publish to npm
     if: >-
-      github.event_name == 'push' ||
-      (github.event_name == 'workflow_dispatch' &&
+      github.event_name == 'push' || (github.event_name == 'workflow_dispatch' &&
         (inputs.job == 'all' || inputs.job == 'npm-publish'))
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
       id-token: write # npm OIDC trusted publisher
@@ -53,23 +55,21 @@ jobs:
           ref: ${{ env.TAG }}
           persist-credentials: false
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
-
-      - name: Setup node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - name: Setup Vite Plus
+        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1.15.0
         with:
           node-version: 24
-          package-manager-cache: false
+          cache: true
+          run-install: false
 
       - name: Install npm
         run: npm install -g npm@latest
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: vp install --frozen-lockfile
 
       - name: Build
-        run: pnpm build
+        run: vp pack
 
       - name: Publish to npm
         # OIDC trusted publisher: requires id-token: write, no NPM_TOKEN needed.
@@ -88,6 +88,7 @@ jobs:
           needs.npm-publish.result == 'success')
       )
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: write # GitHub Release creation + CHANGELOG push
 
@@ -99,20 +100,18 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
-
-      - name: Setup node.js
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - name: Setup Vite Plus
+        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1.15.0
         with:
           node-version: 24
-          package-manager-cache: false
+          cache: true
+          run-install: false
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: vp install --frozen-lockfile
 
       - name: Build
-        run: pnpm build
+        run: vp pack
 
       - name: Create GitHub Release
         run: |

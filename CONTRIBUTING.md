@@ -5,7 +5,7 @@
   - [Pull Request Guidelines](#pull-request-guidelines)
     - [Work Step Example](#work-step-example)
   - [Development Setup](#development-setup)
-    - [Commonly used NPM scripts](#commonly-used-npm-scripts)
+    - [Common Vite+ commands](#common-vite-commands)
 
 ## Issue Reporting Guidelines
 
@@ -27,7 +27,7 @@
 
 - It's OK to have multiple small commits as you work on the PR - we will let GitHub automatically squash it before merging.
 
-- Make sure `pnpm test` passes. (see [development setup](#development-setup))
+- Make sure the full validation command passes. (see [development setup](#development-setup))
 
 - If adding new feature:
 
@@ -41,7 +41,7 @@
 ### Work Step Example
 
 - Fork the repository from [gh-changelogen](https://github.com/kazupon/gh-changelogen) !
-- Create your topic branch from `master`: `git branch my-new-topic origin/main`
+- Create your topic branch from `main`: `git branch my-new-topic origin/main`
 - Add codes and pass tests !
 - Commit your changes: `git commit -am 'Add some topic'`
 - Push to the branch: `git push origin my-new-topic`
@@ -51,22 +51,37 @@
 
 After cloning the repo, run:
 
-    $ pnpm install
+```sh
+vp install
+```
 
-### Commonly used NPM scripts
+Vite+ manages the development Node.js runtime and pnpm version declared by the project. If the setup or runtime looks wrong, run `vp env doctor` and include its output when asking for help.
 
-    # lint source codes
-    $ pnpm lint
+### Common Vite+ commands
 
-    # format source codes
-    $ pnpm format
+```sh
+# Format, lint, and type-check the project
+vp check
 
-    # code auto fix
-    $ pnpm fix
+# Apply automatic formatting and lint fixes
+vp check --fix
 
-    # run the full test suite, include linting
-    $ pnpm test
+# Run the test suite
+vp test
 
-There are some other scripts available in the `scripts` section of the `package.json` file.
+# Check for unused exports
+vp run deadcode
+
+# Build the publishable library and CLI artifacts
+vp pack
+```
+
+Before submitting a pull request, run the full validation sequence:
+
+```sh
+vp check && vp test && vp run deadcode && vp pack
+```
+
+Other compatibility aliases are available in the `scripts` section of `package.json` and can be run with `vp run <script>`.
 
 **Please make sure to have this pass successfully before submitting a PR.** Although the same tests will be run against your PR on the CI server, it is better to have it working locally beforehand.

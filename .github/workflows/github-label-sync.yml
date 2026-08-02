@@ -9,8 +9,14 @@ on:
       - .github/workflows/github-label-sync.yml
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
-  build:
+  sync:
     runs-on: ubuntu-latest
+    permissions:
+      # Required to create, update, and delete repository labels.
+      issues: write
     steps:
-      - uses: r7kamura/github-label-sync-action@v0
+      - uses: r7kamura/github-label-sync-action@061649dd3b80eb5bafad0316466f72962e62c300 # v0.1.0

@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import { vi } from 'vite-plus/test'
 import { fileURLToPath } from 'node:url'
 import { promises as fs } from 'node:fs'
 import { resolve } from 'node:path'
@@ -11,7 +11,7 @@ import type { GitHubRelease } from '../types'
 
 vi.mock('../fetcher', () => {
   return {
-    fetchGithubRelease: vi.fn()
+    fetchGithubRelease: vi.fn<typeof fetchGithubRelease>()
   }
 })
 
@@ -23,7 +23,7 @@ beforeAll(() => {
 })
 
 beforeEach(async () => {
-  orgCwd = process.cwd
+  orgCwd = process.cwd.bind(process)
   process.cwd = () => fileURLToPath(new URL('./fixtures/output', import.meta.url))
   await fs.writeFile(resolve(process.cwd(), './HISTORY.md'), 'This is history', 'utf-8')
 })
@@ -38,7 +38,7 @@ afterEach(async () => {
 
 test('basic', async () => {
   // mocking
-  const spyFetchGithubRelease = vi.mocked(fetchGithubRelease).mockImplementationOnce(tag => {
+  const spyFetchGithubRelease = vi.mocked(fetchGithubRelease).mockImplementationOnce(() => {
     return Promise.resolve(release as unknown as GitHubRelease)
   })
   const spyLog = vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -47,42 +47,48 @@ test('basic', async () => {
   await main(['--repo', 'kazupon/gh-changelogen', '--tag', release.tag_name, '--token', 'foo'])
 
   // assertion
-  expect(spyFetchGithubRelease).toBeCalledWith(release.tag_name, { github: 'kazupon/gh-changelogen', token: 'foo' })
+  expect(spyFetchGithubRelease).toHaveBeenCalledWith(release.tag_name, {
+    github: 'kazupon/gh-changelogen',
+    token: 'foo'
+  })
   expect(spyLog.mock.calls[0][0]).toMatchSnapshot()
   expect(await isExists(resolve(process.cwd(), './CHANGELOG.md'))).toBe(true)
 })
 
 test('token default', async () => {
   // mocking
-  const spyFetchGithubRelease = vi.mocked(fetchGithubRelease).mockImplementationOnce(tag => {
+  const spyFetchGithubRelease = vi.mocked(fetchGithubRelease).mockImplementationOnce(() => {
     return Promise.resolve(release as unknown as GitHubRelease)
   })
   vi.spyOn(process, 'env', 'get').mockImplementation(() => ({ GITHUB_TOKEN: 'bar' }))
-  const spyLog = vi.spyOn(console, 'log').mockImplementation(() => {})
+  vi.spyOn(console, 'log').mockImplementation(() => {})
 
   // call
   await main(['--repo', 'kazupon/gh-changelogen', '--tag', release.tag_name])
 
   // assertion
-  expect(spyFetchGithubRelease).toBeCalledWith(release.tag_name, { github: 'kazupon/gh-changelogen', token: 'bar' })
+  expect(spyFetchGithubRelease).toHaveBeenCalledWith(release.tag_name, {
+    github: 'kazupon/gh-changelogen',
+    token: 'bar'
+  })
 })
 
 test('not found default token', async () => {
   // mocking
-  const spyFetchGithubRelease = vi.mocked(fetchGithubRelease).mockImplementationOnce(tag => {
+  vi.mocked(fetchGithubRelease).mockImplementationOnce(() => {
     return Promise.resolve(release as unknown as GitHubRelease)
   })
   vi.spyOn(process, 'env', 'get').mockImplementation(() => ({}))
 
   // assertion
-  await expect(main(['--repo', 'kazupon/gh-changelogen', '--tag', release.tag_name])).rejects.toThrow(
-    'Not found GITHUB_TOKEN in env'
-  )
+  await expect(
+    main(['--repo', 'kazupon/gh-changelogen', '--tag', release.tag_name])
+  ).rejects.toThrow('Not found GITHUB_TOKEN in env')
 })
 
 test('write changelog to output', async () => {
   // mocking
-  const spyFetchGithubRelease = vi.mocked(fetchGithubRelease).mockImplementationOnce(tag => {
+  vi.mocked(fetchGithubRelease).mockImplementationOnce(() => {
     return Promise.resolve(release as unknown as GitHubRelease)
   })
 

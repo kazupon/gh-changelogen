@@ -13,9 +13,14 @@ on:
 permissions:
   contents: read
 
+env:
+  CI: true
+  VITE_GIT_HOOKS: '0'
+
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -23,20 +28,18 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
-
-      - name: Setup node
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+      - name: Setup Vite Plus
+        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1.15.0
         with:
           node-version: 24
-          package-manager-cache: false
+          cache: true
+          run-install: false
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: vp install --frozen-lockfile
 
       - name: Build
-        run: pnpm build
+        run: vp pack
 
-      - name: Release with pkg-pr-new
-        run: pnpx pkg-pr-new publish
+      - name: Release with pkg-pr-new # zizmor: ignore[use-trusted-publishing]
+        run: npm exec -- pkg-pr-new publish

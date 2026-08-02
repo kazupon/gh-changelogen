@@ -1,4 +1,4 @@
-import { vi } from 'vitest'
+import { vi } from 'vite-plus/test'
 import { existCommand } from '../../utils'
 import { spawn } from 'node:child_process'
 
@@ -6,7 +6,7 @@ import type { ChildProcess } from 'node:child_process'
 
 vi.mock('node:child_process', () => {
   return {
-    spawn: vi.fn()
+    spawn: vi.fn<typeof spawn>()
   }
 })
 
@@ -33,7 +33,9 @@ describe('existCommand', () => {
 
   test('found via "exit" event', async () => {
     // mocking
-    const on = vi.fn().mockImplementationOnce((_, cb: Function) => cb(0))
+    const on = vi
+      .fn<(_event: string, cb: (value: number) => void) => void>()
+      .mockImplementationOnce((_event, cb) => cb(0))
     vi.mocked(spawn).mockImplementationOnce(() => {
       return { exitCode: null, on } as unknown as ChildProcess
     })
@@ -49,6 +51,6 @@ describe('existCommand', () => {
     })
 
     // assertions
-    await expect(existCommand('git')).rejects.toThrow()
+    await expect(existCommand('git')).rejects.toThrow('unexpteced error')
   })
 })
