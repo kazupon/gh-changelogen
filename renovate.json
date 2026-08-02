@@ -4,6 +4,15 @@
   "labels": ["dependency"],
   "automerge": true,
   "ignoreDeps": [],
+  "packageRules": [
+    {
+      "description": "Keep Vite+ packages aligned",
+      "matchDepNames": ["vite", "vite-plus"],
+      "matchPackageNames": ["@voidzero-dev/vite-plus-core", "vite-plus"],
+      "groupName": "vite-plus",
+      "rangeStrategy": "pin"
+    }
+  ],
   "major": {
     "automerge": false
   }
