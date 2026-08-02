@@ -97,11 +97,6 @@ jobs:
           branch: main
           file_pattern: '*.md'
           commit_message: 'chore: sync changelog'
-
-      - name: Publish package
-        run: npm publish
-        env:
-          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
 ```
 
 ## 💪 Motivation
