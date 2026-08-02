@@ -16,6 +16,7 @@ specifiers:
   lint-staged: ^13.0.3
   npm-run-all2: ^5.0.0
   ohmyfetch: ^0.4.18
+  pkg-pr-new: ^0.0.78
   prettier: ^2.7.1
   semver: ^7.3.7
   ts-prune: ^0.10.3
@@ -46,6 +47,7 @@ devDependencies:
   jiti: 1.14.0
   lint-staged: 13.0.3
   npm-run-all2: 5.0.2
+  pkg-pr-new: 0.0.78
   prettier: 2.7.1
   ts-prune: 0.10.3
   typescript: 4.8.2
@@ -3034,6 +3036,11 @@ packages:
   /pidtree/0.6.0:
     resolution: {integrity: sha512-eG2dWTVw5bzqGRztnHExczNxt5VGsE6OwTeCG3fdUf9KBsZzO3R5OIIIzWR+iZA0NtZ+RDVdaoE2dK1cn6jH4g==}
     engines: {node: '>=0.10'}
+    hasBin: true
+    dev: true
+
+  /pkg-pr-new/0.0.78:
+    resolution: {integrity: sha512-sBfGGCiCLmJArx99Z/QmNN3jmkqRYhp1TV8Y1IOpSpXfOljqFcEjDyyc4HCVy+nbrmlkw9qXRq/9/L4ahF/d4w==}
     hasBin: true
     dev: true
 
