@@ -51,9 +51,6 @@ importers:
       pkg-pr-new:
         specifier: ^0.0.86
         version: 0.0.86
-      typescript:
-        specifier: ^6.0.0
-        version: 6.0.3
       vite:
         specifier: npm:@voidzero-dev/vite-plus-core@0.2.7
         version: '@voidzero-dev/vite-plus-core@0.2.7(@types/node@18.19.130)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0)'
@@ -3342,7 +3339,8 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
 
-  typescript@6.0.3: {}
+  typescript@6.0.3:
+    optional: true
 
   ufo@0.8.6: {}
 
