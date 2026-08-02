@@ -24,11 +24,11 @@ importers:
         specifier: ^7.3.7
         version: 7.8.5
       zod:
-        specifier: ^3.18.0
-        version: 3.25.76
+        specifier: ^4.0.0
+        version: 4.4.3
       zodiarg:
         specifier: ^0.2.1
-        version: 0.2.1(zod@3.25.76)
+        version: 0.2.1(zod@4.4.3)
     devDependencies:
       '@kazupon/vp-config':
         specifier: ^0.5.1
@@ -1994,9 +1994,6 @@ packages:
   yuku-parser@0.5.48:
     resolution: {integrity: sha512-OWBfhrpgK9+/4+IXG9oT8Bao4AhViQA7vdyNNH7EUg8dQYgwa70XtIBWTpCEme1P1ECyoDNYkn0wT63f8XRcVA==}
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
-
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
@@ -3510,10 +3507,8 @@ snapshots:
       '@yuku-parser/binding-win32-arm64': 0.5.48
       '@yuku-parser/binding-win32-x64': 0.5.48
 
-  zod@3.25.76: {}
-
   zod@4.4.3: {}
 
-  zodiarg@0.2.1(zod@3.25.76):
+  zodiarg@0.2.1(zod@4.4.3):
     dependencies:
-      zod: 3.25.76
+      zod: 4.4.3

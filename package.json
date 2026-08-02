@@ -56,7 +56,7 @@
   "dependencies": {
     "ohmyfetch": "^0.4.18",
     "semver": "^7.3.7",
-    "zod": "^3.18.0",
+    "zod": "^4.0.0",
     "zodiarg": "^0.2.1"
   },
   "devDependencies": {
