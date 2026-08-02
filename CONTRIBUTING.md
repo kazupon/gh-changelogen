@@ -69,7 +69,7 @@ vp check --fix
 # Run the test suite
 vp test
 
-# Check for unused exports
+# Check for unused files, exports, and dependencies with Knip
 vp run deadcode
 
 # Build the publishable library and CLI artifacts
