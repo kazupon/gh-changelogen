@@ -43,7 +43,7 @@
     "prepack": "vp pack",
     "typecheck": "vp check --no-fmt --no-lint",
     "test": "vp test",
-    "release": "bumpp --commit \"release: v%s\" --push --tag",
+    "release": "vp pack && bumpp",
     "check": "vp check && vp run knip",
     "fix": "vp check --fix && vp run knip:fix",
     "format": "vp fmt --check",
