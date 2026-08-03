@@ -1,7 +1,7 @@
 name: Release
 
 # Triggers:
-#   - tag push (v*): publish to npm, then update the release notes.
+#   - tag push (v*): publish to npm, then create the GitHub Release.
 #   - workflow_dispatch: retry either job for an existing tag.
 on:
   push:
@@ -77,7 +77,7 @@ jobs:
         run: npm publish --access public --tag latest
 
   release-notes:
-    name: Update release notes
+    name: Create GitHub Release
     needs:
       - npm-publish
     if: >-
@@ -90,28 +90,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
-      contents: write # GitHub Release creation + CHANGELOG push
+      contents: write # GitHub Release creation
 
     steps:
       - name: Checkout codes
-        # zizmor: ignore[artipacked] -- git-auto-commit-action needs persisted credentials to push.
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: main
-          fetch-depth: 0
-
-      - name: Setup Vite Plus
-        uses: voidzero-dev/setup-vp@250f29ce396baf5e8f24498e17c0dfdebabc26eb # v1.15.0
-        with:
-          node-version: 24
-          cache: true
-          run-install: false
-
-      - name: Install dependencies
-        run: vp install --frozen-lockfile
-
-      - name: Build
-        run: vp pack
+          ref: ${{ env.TAG }}
+          persist-credentials: false
 
       - name: Create GitHub Release
         run: |
@@ -122,15 +108,3 @@ jobs:
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Sync changelog from GitHub Releases
-        run: ./cli.mjs --repo=kazupon/gh-changelogen --tag="$TAG"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Commit changelog
-        uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d # v7.2.0
-        with:
-          branch: main
-          file_pattern: CHANGELOG.md
-          commit_message: 'chore: generate changelog'

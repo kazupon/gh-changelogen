@@ -130,7 +130,7 @@ Before releasing:
 - Ensure `HEAD` is already available on the GitHub remote. Generated notes cannot target an
   unpushed commit.
 - Track `CHANGELOG.md` before the release. `git commit --all` does not add untracked files.
-- Keep bumpp's clean-tree check enabled because `all: true` includes every tracked change.
+- Do not carry unrelated tracked changes: `all: true` includes every tracked change.
 - Ensure the future tag does not already exist locally or remotely.
 - Set `GH_TOKEN` or `GITHUB_TOKEN` with `Contents: write` permission.
 
@@ -219,26 +219,30 @@ execFileSync(
 The wrapper passes an argument array without constructing another shell command. A non-zero
 gh-changelogen exit stops bumpp before commit, tag, and push.
 
-## GitHub Actions
+### Releasing gh-changelogen itself
 
-The existing published-mode flow remains supported: create the GitHub Release first, then run
-gh-changelogen without `--generate-notes`.
+This repository uses its local CLI in the same prerelease flow:
 
-```yaml
-- name: Create GitHub Release
-  run: gh release create "$TAG" --generate-notes
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-- name: Generate changelog from the published Release
-  run: npx gh-changelogen --repo=kazupon/gh-changelogen --tag="$TAG"
-  env:
-    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+```sh
+GH_TOKEN="$(gh auth token)" vp run release
 ```
 
-After adopting the bumpp prerelease flow, the post-release changelog commit can be removed from
-the workflow. GitHub Release creation should still happen only after package publication and its
-smoke test succeed.
+The release script first builds the local CLI. bumpp then updates `package.json` and invokes that
+CLI with the selected future version, `--generate-notes`, and `--target=HEAD`. Its `all: true`
+configuration puts the version and `CHANGELOG.md` changes in the same release commit before
+creating and pushing the tag.
+
+If changelog generation fails, bumpp stops before commit, tag, and push. Start from a clean main
+branch whose `HEAD` is already available on GitHub.
+
+## GitHub Actions
+
+For this repository, the tag-push workflow publishes the package first and creates the GitHub
+Release only after npm publication succeeds. It does not generate or commit `CHANGELOG.md`;
+that file is already part of the tagged release commit produced by `vp run release`.
+
+The workflow's `release-notes` dispatch option remains available to retry GitHub Release creation
+for an existing tag without republishing the package.
 
 ## Failure and recovery
 
