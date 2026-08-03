@@ -44,13 +44,14 @@
     "typecheck": "vp check --no-fmt --no-lint",
     "test": "vp test",
     "release": "bumpp --commit \"release: v%s\" --push --tag",
-    "check": "vp check",
-    "fix": "vp check --fix",
+    "check": "vp check && vp run knip",
+    "fix": "vp check --fix && vp run knip:fix",
     "format": "vp fmt --check",
     "format:fix": "vp fmt --write",
     "lint": "vp lint",
     "lint:fix": "vp lint --fix",
-    "deadcode": "knip",
+    "knip": "knip",
+    "knip:fix": "knip --fix",
     "prepare": "vp config"
   },
   "dependencies": {
