@@ -11,6 +11,11 @@
       "matchPackageNames": ["@voidzero-dev/vite-plus-core", "vite-plus"],
       "groupName": "vite-plus",
       "rangeStrategy": "pin"
+    },
+    {
+      "description": "Keep Gunshi packages aligned",
+      "matchDepNames": ["gunshi", "@gunshi/docs"],
+      "groupName": "gunshi"
     }
   ],
   "major": {

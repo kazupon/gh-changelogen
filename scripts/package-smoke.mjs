@@ -2,8 +2,10 @@ import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { constants } from 'node:fs'
 import { access, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 const packageSpec = process.argv[2]
 
@@ -74,6 +76,11 @@ try {
   assert.equal(packageJson.bin, './cli.mjs')
   assert.equal(packageJson.engines.node, '>= 22')
   assert.equal(packageJson.dependencies.ohmyfetch, undefined)
+  assert.equal(packageJson.dependencies.zod, undefined)
+  assert.equal(packageJson.dependencies.zodiarg, undefined)
+  assert.match(packageJson.dependencies.gunshi, /^\^\d+\.\d+\.\d+$/)
+  assert.equal(packageJson.dependencies['@gunshi/docs'], undefined)
+  assert.equal(packageJson.devDependencies['@gunshi/docs'], packageJson.dependencies.gunshi)
 
   if (process.platform !== 'win32') {
     const wrapper = await stat(join(packageDirectory, 'cli.mjs'))
@@ -98,12 +105,81 @@ try {
     { cwd: consumerDirectory }
   )
 
-  const help = run(process.execPath, [join(packageDirectory, 'cli.mjs')], {
+  const cliExports = ['isCliValidationError', 'main']
+  const esmCli = await import(pathToFileURL(join(packageDirectory, 'dist/cli.mjs')).href)
+  const require = createRequire(import.meta.url)
+  const cjsCli = require(join(packageDirectory, 'dist/cli.cjs'))
+  assert.deepEqual(Object.keys(esmCli).sort(), cliExports)
+  assert.deepEqual(Object.keys(cjsCli).sort(), cliExports)
+
+  const cli = join(packageDirectory, 'cli.mjs')
+  const help = run(process.execPath, [cli], {
     cwd: consumerDirectory
   })
+  const longHelp = run(process.execPath, [cli, '--help'], {
+    cwd: consumerDirectory
+  })
+  const shortHelp = run(process.execPath, [cli, '-h'], {
+    cwd: consumerDirectory
+  })
+  const helpWithUnknownOption = run(process.execPath, [cli, '--unknown', '--help'], {
+    cwd: consumerDirectory
+  })
+
+  assert.equal(help.stderr, '')
+  assert.equal(help.stdout, longHelp.stdout)
+  assert.equal(help.stdout, shortHelp.stdout)
+  assert.equal(help.stdout, helpWithUnknownOption.stdout)
+  assert.match(help.stdout, /USAGE:/)
   assert.match(help.stdout, /OPTIONS:/)
-  assert.match(help.stdout, /--repo <string>/)
-  assert.match(help.stdout, /--tag <string>/)
+  assert.match(help.stdout, /-h, --help/)
+  assert.match(help.stdout, /--repo <repo>/)
+  assert.match(help.stdout, /--tag <tag>/)
+  assert.match(help.stdout, /--output \[output\]/)
+  assert.match(help.stdout, /--token \[token\]/)
+  assert.match(help.stdout, /default: CHANGELOG\.md/)
+  assert.match(help.stdout, /default: GITHUB_TOKEN/)
+  assert.match(help.stdout, /-v, --version/)
+  for (const option of ['--repo', '--tag', '--output', '--token']) {
+    assert.equal(countOccurrences(help.stdout, option), 1, `${option} should appear once in help`)
+  }
+
+  const missingRepo = runResult(process.execPath, [cli, '--tag', 'v0.0.0', '--token', 'test'], {
+    cwd: consumerDirectory
+  })
+  assert.equal(missingRepo.status, 1)
+  assert.equal(missingRepo.stderr, '')
+  assert.match(missingRepo.stdout, /Optional argument '--repo' is required/)
+  assert.equal(countOccurrences(missingRepo.stdout, "Optional argument '--repo' is required"), 1)
+  assert.doesNotMatch(missingRepo.stdout, /AggregateError|ArgsValidationError|\n\s+at /)
+
+  const missingTag = runResult(process.execPath, [cli, '--repo', 'owner/repo', '--token', 'test'], {
+    cwd: consumerDirectory
+  })
+  assert.equal(missingTag.status, 1)
+  assert.equal(missingTag.stderr, '')
+  assert.match(missingTag.stdout, /Optional argument '--tag' is required/)
+  assert.equal(countOccurrences(missingTag.stdout, "Optional argument '--tag' is required"), 1)
+  assert.doesNotMatch(missingTag.stdout, /AggregateError|ArgsValidationError|\n\s+at /)
+
+  for (const option of ['--version', '-v']) {
+    const version = run(process.execPath, [cli, option], { cwd: consumerDirectory })
+    assert.equal(version.stdout, `${packageJson.version}\n`)
+    assert.equal(version.stderr, '')
+  }
+
+  const missingToken = runResult(
+    process.execPath,
+    [cli, '--repo', 'owner/repo', '--tag', 'v0.0.0'],
+    {
+      cwd: consumerDirectory,
+      env: { GITHUB_TOKEN: '' }
+    }
+  )
+  assert.equal(missingToken.status, 1)
+  assert.equal(missingToken.stdout, '')
+  assert.match(missingToken.stderr, /Not found GITHUB_TOKEN in env/)
+  assert.equal(countOccurrences(missingToken.stderr, 'Not found GITHUB_TOKEN in env'), 1)
 
   console.log(`Package smoke test passed on ${process.version}`)
 } finally {
@@ -111,18 +187,7 @@ try {
 }
 
 function run(command, args, options) {
-  const result = spawnSync(command, args, {
-    ...options,
-    encoding: 'utf8',
-    env: {
-      ...process.env,
-      npm_config_update_notifier: 'false'
-    }
-  })
-
-  if (result.error) {
-    throw result.error
-  }
+  const result = runResult(command, args, options)
 
   if (result.status !== 0) {
     throw new Error(
@@ -137,6 +202,28 @@ function run(command, args, options) {
   }
 
   return result
+}
+
+function runResult(command, args, options = {}) {
+  const result = spawnSync(command, args, {
+    ...options,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      ...options.env,
+      npm_config_update_notifier: 'false'
+    }
+  })
+
+  if (result.error) {
+    throw result.error
+  }
+
+  return result
+}
+
+function countOccurrences(value, search) {
+  return value.split(search).length - 1
 }
 
 async function listFiles(directory, prefix = '') {

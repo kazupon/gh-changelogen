@@ -5,7 +5,7 @@ import {
 } from '@kazupon/vp-config'
 import { defineConfig } from 'vite-plus'
 
-const externalDependencies = ['semver', 'zod', 'zodiarg']
+const externalDependencies = [/^gunshi(?:\/.*)?$/, 'semver']
 
 export default defineConfig({
   staged: {

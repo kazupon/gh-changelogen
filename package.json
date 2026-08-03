@@ -54,11 +54,11 @@
     "prepare": "vp config"
   },
   "dependencies": {
-    "semver": "^7.3.7",
-    "zod": "^3.18.0",
-    "zodiarg": "^0.2.1"
+    "gunshi": "^0.37.1",
+    "semver": "^7.3.7"
   },
   "devDependencies": {
+    "@gunshi/docs": "^0.37.1",
     "@kazupon/vp-config": "^0.5.1",
     "@types/node": "^24.0.0",
     "@types/semver": "^7.3.12",
