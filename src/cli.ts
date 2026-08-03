@@ -1,15 +1,9 @@
-import { promises as fs } from 'node:fs'
-import { resolve } from 'node:path'
-
 import { cli, define, isArgsValidationError } from 'gunshi'
 
 import packageJson from '../package.json' with { type: 'json' }
 
-import { fetchGithubRelease } from './fetcher'
-import { generateChangelog } from './generator'
-import { isExists } from './utils'
+import { updateChangelog } from './application'
 
-const GITHUB_TOKEN_KEY = 'GITHUB_TOKEN' as const
 const DEFAULT_CHANGELOG_FILE = 'CHANGELOG.md' as const
 const CLI_NAME = 'gh-changelogen' as const
 const CLI_DESCRIPTION = 'Changelog generator for GitHub Releases' as const
@@ -36,8 +30,18 @@ const command = define({
     },
     token: {
       type: 'string',
-      default: GITHUB_TOKEN_KEY,
-      description: `GitHub token, if you won’t specify, respect '${GITHUB_TOKEN_KEY}' env`
+      description: 'GitHub token; defaults to GH_TOKEN, then GITHUB_TOKEN'
+    },
+    generateNotes: {
+      type: 'boolean',
+      default: false,
+      toKebab: true,
+      description: 'Generate release notes for a future tag instead of fetching an existing release'
+    },
+    target: {
+      type: 'string',
+      default: 'HEAD',
+      description: 'Commitish for generated notes; resolved to an exact commit SHA'
     }
   },
   run: async ctx => {
@@ -45,38 +49,21 @@ const command = define({
       throw new Error(`Undefined: ${ctx.positionals[0]}`)
     }
 
-    const token = resolveGithubToken(ctx.values.token)
-    const release = await fetchGithubRelease(ctx.values.tag, {
-      github: ctx.values.repo,
-      token
-    })
-    const changelog = await generateChangelog(release)
-    console.log(changelog)
+    if (ctx.explicit.target && !ctx.values.generateNotes) {
+      throw new Error('--target requires --generate-notes')
+    }
 
-    const output = resolve(process.cwd(), ctx.values.output)
-    await writeChangelog(output, changelog)
+    const result = await updateChangelog({
+      output: ctx.values.output,
+      repository: ctx.values.repo,
+      source: ctx.values.generateNotes ? 'generated-notes' : 'published-release',
+      tagName: ctx.values.tag,
+      token: ctx.values.token,
+      ...(ctx.values.generateNotes ? { targetCommitish: ctx.values.target } : {})
+    })
+    console.log(result.entry)
   }
 })
-
-async function writeChangelog(output: string, changelog: string) {
-  let existChangelog = ''
-  if (await isExists(output)) {
-    existChangelog = (await fs.readFile(output, 'utf-8')).toString()
-  }
-
-  await fs.writeFile(output, [changelog, '\n', existChangelog].join(''), 'utf-8')
-}
-
-function resolveGithubToken(value: string) {
-  let token = value
-  if (token === GITHUB_TOKEN_KEY) {
-    token = process.env.GITHUB_TOKEN || ''
-    if (!token) {
-      throw new Error(`Not found ${GITHUB_TOKEN_KEY} in env`)
-    }
-  }
-  return token
-}
 
 export function isCliValidationError(error: unknown): boolean {
   return (

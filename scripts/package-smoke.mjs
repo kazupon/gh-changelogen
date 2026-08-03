@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { constants } from 'node:fs'
-import { access, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises'
+import { access, mkdtemp, readFile, readdir, realpath, rm, stat, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const packageSpec = process.argv[2]
@@ -46,6 +46,8 @@ try {
     'LICENSE',
     'README.md',
     'cli.mjs',
+    'dist/application-HASH.cjs',
+    'dist/application-HASH.mjs',
     'dist/cli.cjs',
     'dist/cli.d.ts',
     'dist/cli.mjs',
@@ -63,7 +65,11 @@ try {
     'dist/cli.d.ts'
   ]
 
-  assert.deepEqual(await listFiles(packageDirectory), expectedPackageFiles)
+  const packageFiles = await listFiles(packageDirectory)
+  assert.deepEqual(
+    packageFiles.map(normalizeBuildChunkName).sort(compareStrings),
+    expectedPackageFiles
+  )
   await Promise.all(
     expectedBuildFiles.map(file => access(join(packageDirectory, file), constants.R_OK))
   )
@@ -79,6 +85,7 @@ try {
   assert.equal(packageJson.dependencies.zod, undefined)
   assert.equal(packageJson.dependencies.zodiarg, undefined)
   assert.match(packageJson.dependencies.gunshi, /^\^\d+\.\d+\.\d+$/)
+  assert.deepEqual(Object.keys(packageJson.dependencies).sort(), ['gunshi', 'semver'])
   assert.equal(packageJson.dependencies['@gunshi/docs'], undefined)
   assert.equal(packageJson.devDependencies['@gunshi/docs'], packageJson.dependencies.gunshi)
 
@@ -92,7 +99,7 @@ try {
     [
       '--input-type=module',
       '--eval',
-      "const api = await import('gh-changelogen'); if (Object.keys(api).length !== 0) throw new Error('unexpected ESM runtime exports')"
+      "const api = await import('gh-changelogen'); const keys = Object.keys(api).sort(); if (keys.join(',') !== 'generateGithubReleaseNotes,updateChangelog') throw new Error(`unexpected ESM runtime exports: ${keys}`)"
     ],
     { cwd: consumerDirectory }
   )
@@ -100,19 +107,45 @@ try {
     process.execPath,
     [
       '--eval',
-      "const api = require('gh-changelogen'); if (Object.keys(api).length !== 0) throw new Error('unexpected CJS runtime exports')"
+      "const api = require('gh-changelogen'); const keys = Object.keys(api).sort(); if (keys.join(',') !== 'generateGithubReleaseNotes,updateChangelog') throw new Error(`unexpected CJS runtime exports: ${keys}`)"
     ],
     { cwd: consumerDirectory }
   )
 
+  const apiExports = ['generateGithubReleaseNotes', 'updateChangelog']
+  const esmApi = await import(pathToFileURL(join(packageDirectory, 'dist/index.mjs')).href)
+  const require = createRequire(import.meta.url)
+  const cjsApi = require(join(packageDirectory, 'dist/index.cjs'))
+  assert.deepEqual(Object.keys(esmApi).sort(), apiExports)
+  assert.deepEqual(Object.keys(cjsApi).sort(), apiExports)
+  for (const name of apiExports) {
+    assert.equal(typeof esmApi[name], 'function')
+    assert.equal(typeof cjsApi[name], 'function')
+  }
+
+  const declarations = await readFile(join(packageDirectory, 'dist/index.d.ts'), 'utf8')
+  for (const declaration of [
+    'GenerateGithubReleaseNotesOptions',
+    'ReleaseNotes',
+    'UpdateChangelogOptions',
+    'UpdateChangelogResult'
+  ]) {
+    assert.match(declarations, new RegExp(`(?:interface|type) ${declaration}\\b`))
+  }
+
   const cliExports = ['isCliValidationError', 'main']
   const esmCli = await import(pathToFileURL(join(packageDirectory, 'dist/cli.mjs')).href)
-  const require = createRequire(import.meta.url)
   const cjsCli = require(join(packageDirectory, 'dist/cli.cjs'))
   assert.deepEqual(Object.keys(esmCli).sort(), cliExports)
   assert.deepEqual(Object.keys(cjsCli).sort(), cliExports)
 
+  await smokeProgrammaticApi(esmApi, consumerDirectory)
+
   const cli = join(packageDirectory, 'cli.mjs')
+  const consumerRequire = createRequire(join(consumerDirectory, 'package.json'))
+  const packageEntry = consumerRequire.resolve('gh-changelogen')
+  assert.equal(await realpath(resolve(dirname(packageEntry), '..', 'cli.mjs')), await realpath(cli))
+
   const help = run(process.execPath, [cli], {
     cwd: consumerDirectory
   })
@@ -136,11 +169,15 @@ try {
   assert.match(help.stdout, /--repo <repo>/)
   assert.match(help.stdout, /--tag <tag>/)
   assert.match(help.stdout, /--output \[output\]/)
-  assert.match(help.stdout, /--token \[token\]/)
+  assert.match(help.stdout, /--token (?:<token>|\[token\])/)
+  assert.match(help.stdout, /--generate-notes/)
+  assert.match(help.stdout, /--target \[target\]/)
   assert.match(help.stdout, /default: CHANGELOG\.md/)
-  assert.match(help.stdout, /default: GITHUB_TOKEN/)
+  assert.match(help.stdout, /default: false/)
+  assert.match(help.stdout, /default: HEAD/)
+  assert.doesNotMatch(help.stdout, /default: GITHUB_TOKEN/)
   assert.match(help.stdout, /-v, --version/)
-  for (const option of ['--repo', '--tag', '--output', '--token']) {
+  for (const option of ['--repo', '--tag', '--output', '--token', '--generate-notes', '--target']) {
     assert.equal(countOccurrences(help.stdout, option), 1, `${option} should appear once in help`)
   }
 
@@ -173,17 +210,87 @@ try {
     [cli, '--repo', 'owner/repo', '--tag', 'v0.0.0'],
     {
       cwd: consumerDirectory,
-      env: { GITHUB_TOKEN: '' }
+      env: { GH_TOKEN: '', GITHUB_TOKEN: '' }
     }
   )
   assert.equal(missingToken.status, 1)
   assert.equal(missingToken.stdout, '')
-  assert.match(missingToken.stderr, /Not found GITHUB_TOKEN in env/)
-  assert.equal(countOccurrences(missingToken.stderr, 'Not found GITHUB_TOKEN in env'), 1)
+  assert.match(missingToken.stderr, /GH_TOKEN or GITHUB_TOKEN/)
+  assert.equal(countOccurrences(missingToken.stderr, 'GH_TOKEN or GITHUB_TOKEN'), 1)
+
+  const targetWithoutGeneratedMode = runResult(
+    process.execPath,
+    [cli, '--repo', 'owner/repo', '--tag', 'v0.0.0', '--token', 'test', '--target', 'HEAD'],
+    { cwd: consumerDirectory }
+  )
+  assert.equal(targetWithoutGeneratedMode.status, 1)
+  assert.equal(targetWithoutGeneratedMode.stdout, '')
+  assert.match(targetWithoutGeneratedMode.stderr, /--target requires --generate-notes/)
 
   console.log(`Package smoke test passed on ${process.version}`)
 } finally {
   await rm(consumerDirectory, { recursive: true, force: true })
+}
+
+async function smokeProgrammaticApi(api, consumerDirectory) {
+  run('git', ['init', '--initial-branch=main'], { cwd: consumerDirectory })
+  run('git', ['config', 'user.email', 'test@example.com'], { cwd: consumerDirectory })
+  run('git', ['config', 'user.name', 'Test User'], { cwd: consumerDirectory })
+  run('git', ['add', 'package.json'], { cwd: consumerDirectory })
+  run('git', ['commit', '-m', 'initial'], { cwd: consumerDirectory })
+  const head = run('git', ['rev-parse', 'HEAD'], { cwd: consumerDirectory }).stdout.trim()
+
+  const originalCwd = process.cwd()
+  const originalFetch = globalThis.fetch
+  const requests = []
+  globalThis.fetch = async (input, init = {}) => {
+    const inputUrl =
+      input instanceof Request ? input.url : input instanceof URL ? input.href : String(input)
+    requests.push({ input: inputUrl, init })
+    if (init.method === 'POST') {
+      return Response.json({ body: '## Generated notes', name: 'v1.1.0' })
+    }
+    return Response.json({
+      body: '## Published notes',
+      html_url: 'https://github.com/owner/repo/releases/tag/v1.0.0',
+      name: 'v1.0.0',
+      published_at: '2026-08-01T00:00:00.000Z',
+      tag_name: 'v1.0.0'
+    })
+  }
+
+  try {
+    process.chdir(consumerDirectory)
+    const published = await api.updateChangelog({
+      output: 'PUBLISHED.md',
+      repository: 'owner/repo',
+      tagName: 'v1.0.0',
+      token: 'test-token'
+    })
+    assert.equal(published.action, 'created')
+    assert.match(await readFile(join(consumerDirectory, 'PUBLISHED.md'), 'utf8'), /Published notes/)
+
+    const generated = await api.generateGithubReleaseNotes({
+      repository: 'owner/repo',
+      tagName: 'v1.1.0',
+      token: 'test-token'
+    })
+    assert.equal(generated.source, 'generated-notes')
+    assert.equal(generated.targetCommitish, head)
+    assert.equal(generated.body, '## Generated notes')
+  } finally {
+    globalThis.fetch = originalFetch
+    process.chdir(originalCwd)
+  }
+
+  assert.equal(requests.length, 2)
+  assert.equal(requests[0].init.method, 'GET')
+  assert.equal(requests[1].init.method, 'POST')
+  assert.deepEqual(JSON.parse(requests[1].init.body), {
+    tag_name: 'v1.1.0',
+    target_commitish: head
+  })
+  assert.equal(requests[1].init.redirect, 'error')
 }
 
 function run(command, args, options) {
@@ -238,5 +345,13 @@ async function listFiles(directory, prefix = '') {
     }
   }
 
-  return files.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
+  return files.sort(compareStrings)
+}
+
+function normalizeBuildChunkName(file) {
+  return file.replace(/^dist\/application-[^.]+\.(cjs|mjs)$/u, 'dist/application-HASH.$1')
+}
+
+function compareStrings(left, right) {
+  return left < right ? -1 : left > right ? 1 : 0
 }
