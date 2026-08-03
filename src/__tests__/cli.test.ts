@@ -69,6 +69,28 @@ test('equals option syntax', async () => {
   })
 })
 
+test('keeps permissive unknown-option behavior', async () => {
+  const spyFetchGithubRelease = vi
+    .mocked(fetchGithubRelease)
+    .mockResolvedValueOnce(release as unknown as GitHubRelease)
+  vi.spyOn(console, 'log').mockImplementation(() => {})
+
+  await main([
+    '--unknown',
+    '--repo',
+    'kazupon/gh-changelogen',
+    '--tag',
+    release.tag_name,
+    '--token',
+    'foo'
+  ])
+
+  expect(spyFetchGithubRelease).toHaveBeenCalledWith(release.tag_name, {
+    github: 'kazupon/gh-changelogen',
+    token: 'foo'
+  })
+})
+
 test('token default', async () => {
   // mocking
   const spyFetchGithubRelease = vi.mocked(fetchGithubRelease).mockImplementationOnce(() => {
@@ -102,15 +124,22 @@ test('not found default token', async () => {
 test('does not fetch a release for invalid input', async () => {
   const spyLog = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-  const error = await main(['--repo', 'kazupon/gh-changelogen', '--token', 'foo']).catch(
-    error => error
-  )
+  const error = await main([
+    '--repo',
+    'kazupon/gh-changelogen',
+    '--token',
+    'foo',
+    '--output',
+    './HISTORY.md'
+  ]).catch(error => error)
   expect(error).toBeInstanceOf(Error)
   expect(isCliValidationError(error)).toBe(true)
   const output = spyLog.mock.calls.map(([message = '']) => String(message)).join('\n')
   expect(output).toContain("Optional argument '--tag' is required")
   expect(output).not.toMatch(/AggregateError|ArgsValidationError/)
   expect(fetchGithubRelease).not.toHaveBeenCalled()
+  expect(await fs.readFile(resolve(process.cwd(), './HISTORY.md'), 'utf-8')).toBe('This is history')
+  expect(await isExists(resolve(process.cwd(), './CHANGELOG.md'))).toBe(false)
 })
 
 test.each([
