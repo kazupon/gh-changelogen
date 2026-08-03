@@ -72,6 +72,8 @@ try {
     import: './dist/index.mjs'
   })
   assert.equal(packageJson.bin, './cli.mjs')
+  assert.equal(packageJson.engines.node, '>= 22')
+  assert.equal(packageJson.dependencies.ohmyfetch, undefined)
 
   if (process.platform !== 'win32') {
     const wrapper = await stat(join(packageDirectory, 'cli.mjs'))
