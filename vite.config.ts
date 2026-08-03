@@ -5,7 +5,7 @@ import {
 } from '@kazupon/vp-config'
 import { defineConfig } from 'vite-plus'
 
-const externalDependencies = ['ohmyfetch', 'semver', 'zod', 'zodiarg']
+const externalDependencies = ['semver', 'zod', 'zodiarg']
 
 export default defineConfig({
   staged: {
@@ -23,7 +23,7 @@ export default defineConfig({
     dts: true,
     format: ['esm', 'cjs'],
     platform: 'node',
-    target: 'node14.18',
+    target: 'node22',
     fixedExtension: true,
     outExtensions: ({ format }) => ({
       js: format === 'cjs' ? '.cjs' : '.mjs',

@@ -1,22 +1,23 @@
 import { vi } from 'vite-plus/test'
-import { $fetch } from 'ohmyfetch'
 import { fetchGithubRelease } from '../../fetcher'
 import release from '../fixtures/release.json'
 
 import type { GitHubRelease, Fetcher, FetcherOptions } from '../../types'
 
-vi.mock('ohmyfetch', async () => {
-  return {
-    $fetch: vi.fn<typeof $fetch>()
-  }
+const fetchMock = vi.fn<typeof fetch>()
+
+beforeEach(() => {
+  vi.stubGlobal('fetch', fetchMock)
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
 })
 
 describe('fetchGithubRelease', () => {
   test('default', async () => {
     // mocking
-    vi.mocked($fetch).mockImplementationOnce(() => {
-      return Promise.resolve(release)
-    })
+    fetchMock.mockResolvedValueOnce(Response.json(release))
 
     // assertion
     expect(
@@ -25,6 +26,24 @@ describe('fetchGithubRelease', () => {
         token: 'foo'
       } as FetcherOptions)
     ).toEqual(release)
+    expect(fetchMock).toHaveBeenCalledWith(
+      `https://api.github.com/repos/kazupon/gh-changelogen/releases/tags/${release.tag_name}`,
+      {
+        headers: {
+          accept: 'application/vnd.github.v3+json',
+          authorization: 'token foo'
+        },
+        method: 'GET'
+      }
+    )
+  })
+
+  test('default fetcher error', async () => {
+    fetchMock.mockResolvedValueOnce(new Response(null, { status: 404, statusText: 'Not Found' }))
+
+    await expect(
+      fetchGithubRelease(release.tag_name, { github: 'kazupon/gh-changelogen' })
+    ).rejects.toThrow('GitHub API request failed: 404 Not Found')
   })
 
   test('custom fetcher', async () => {

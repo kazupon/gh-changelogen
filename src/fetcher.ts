@@ -1,14 +1,15 @@
-import { $fetch } from 'ohmyfetch'
-
 import { isFunction } from './utils'
 
 import type { GitHubRelease, Fetcher, FetcherOptions } from './types'
 
 function getHeaders(options: FetcherOptions) {
-  return {
-    accept: 'application/vnd.github.v3+json',
-    authorization: `token ${options.token}`
+  const headers: Record<string, string> = {
+    accept: 'application/vnd.github.v3+json'
   }
+  if (options.token) {
+    headers.authorization = `token ${options.token}`
+  }
+  return headers
 }
 
 async function fetcherDefault(tag: string, options: FetcherOptions = {}): Promise<GitHubRelease> {
@@ -17,7 +18,11 @@ async function fetcherDefault(tag: string, options: FetcherOptions = {}): Promis
   }
 
   const url = `https://api.github.com/repos/${options.github}/releases/tags/${tag}`
-  return $fetch<GitHubRelease>(url, { headers: getHeaders(options), method: 'GET' })
+  const response = await fetch(url, { headers: getHeaders(options), method: 'GET' })
+  if (!response.ok) {
+    throw new Error(`GitHub API request failed: ${response.status} ${response.statusText}`)
+  }
+  return (await response.json()) as GitHubRelease
 }
 
 export async function fetchGithubRelease(
