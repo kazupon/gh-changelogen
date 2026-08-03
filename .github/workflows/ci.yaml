@@ -37,13 +37,10 @@ jobs:
         run: vp install --frozen-lockfile
 
       - name: Check
-        run: vp check
+        run: vpr check
 
       - name: Test
-        run: vp test
-
-      - name: Detect dead code
-        run: vp run deadcode
+        run: vpr test
 
       - name: Pack library
         run: vp pack
