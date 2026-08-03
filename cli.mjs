@@ -1,7 +1,9 @@
 #!/usr/bin/env node
-import { main } from './dist/cli.mjs'
+import { isCliValidationError, main } from './dist/cli.mjs'
 
 main(process.argv.slice(2)).catch(error => {
-  console.error(error)
-  process.exit(1)
+  if (!isCliValidationError(error)) {
+    console.error(error)
+  }
+  process.exitCode = 1
 })
