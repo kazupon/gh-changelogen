@@ -5,6 +5,7 @@ import { resolve } from 'node:path'
 import { fetchGithubRelease } from '../fetcher'
 import { isCliValidationError, main } from '../cli'
 import { isExists } from '../utils'
+import packageJson from '../../package.json' with { type: 'json' }
 import release from './fixtures/release.json'
 
 import type { GitHubRelease } from '../types'
@@ -162,15 +163,17 @@ test.each([
   expect(output.split('--token')).toHaveLength(2)
   expect(output).toContain('(default: CHANGELOG.md)')
   expect(output).toContain('(default: GITHUB_TOKEN)')
-  expect(output).not.toContain('--version')
+  expect(output).toContain('-v, --version')
   expect(fetchGithubRelease).not.toHaveBeenCalled()
 })
 
-test.each(['--version', '-v'])('does not provide %s', async option => {
+test.each(['--version', '-v'])('provides %s', async option => {
   const spyLog = vi.spyOn(console, 'log').mockImplementation(() => {})
 
-  await expect(main([option])).rejects.toThrow(`Unknown option: ${option}`)
-  expect(spyLog).not.toHaveBeenCalled()
+  await main([option])
+
+  expect(spyLog).toHaveBeenCalledOnce()
+  expect(spyLog).toHaveBeenCalledWith(packageJson.version)
   expect(fetchGithubRelease).not.toHaveBeenCalled()
 })
 

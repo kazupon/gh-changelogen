@@ -139,7 +139,7 @@ try {
   assert.match(help.stdout, /--token \[token\]/)
   assert.match(help.stdout, /default: CHANGELOG\.md/)
   assert.match(help.stdout, /default: GITHUB_TOKEN/)
-  assert.doesNotMatch(help.stdout, /--version/)
+  assert.match(help.stdout, /-v, --version/)
   for (const option of ['--repo', '--tag', '--output', '--token']) {
     assert.equal(countOccurrences(help.stdout, option), 1, `${option} should appear once in help`)
   }
@@ -163,11 +163,9 @@ try {
   assert.doesNotMatch(missingTag.stdout, /AggregateError|ArgsValidationError|\n\s+at /)
 
   for (const option of ['--version', '-v']) {
-    const version = runResult(process.execPath, [cli, option], { cwd: consumerDirectory })
-    assert.equal(version.status, 1)
-    assert.equal(version.stdout, '')
-    assert.match(version.stderr, new RegExp(`Unknown option: ${option}`))
-    assert.doesNotMatch(version.stderr, /^unknown$/m)
+    const version = run(process.execPath, [cli, option], { cwd: consumerDirectory })
+    assert.equal(version.stdout, `${packageJson.version}\n`)
+    assert.equal(version.stderr, '')
   }
 
   const missingToken = runResult(

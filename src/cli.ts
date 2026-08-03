@@ -2,7 +2,8 @@ import { promises as fs } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { cli, define, isArgsValidationError } from 'gunshi'
-import { renderHeader } from 'gunshi/renderer'
+
+import packageJson from '../package.json' with { type: 'json' }
 
 import { fetchGithubRelease } from './fetcher'
 import { generateChangelog } from './generator'
@@ -12,6 +13,7 @@ const GITHUB_TOKEN_KEY = 'GITHUB_TOKEN' as const
 const DEFAULT_CHANGELOG_FILE = 'CHANGELOG.md' as const
 const CLI_NAME = 'gh-changelogen' as const
 const CLI_DESCRIPTION = 'Changelog generator for GitHub Releases' as const
+const CLI_VERSION = packageJson.version
 
 const command = define({
   name: CLI_NAME,
@@ -36,12 +38,6 @@ const command = define({
       type: 'string',
       default: GITHUB_TOKEN_KEY,
       description: `GitHub token, if you won’t specify, respect '${GITHUB_TOKEN_KEY}' env`
-    },
-    // Gunshi 0.37 registers the version option even when no version is configured.
-    // Keep gh-changelogen's existing no-version contract by hiding that global option.
-    version: {
-      type: 'boolean',
-      hidden: true
     }
   },
   run: async ctx => {
@@ -91,23 +87,12 @@ export function isCliValidationError(error: unknown): boolean {
 }
 
 export async function main(args: string[]) {
-  const versionArgument = args.find(
-    arg => arg === '--version' || arg.startsWith('--version=') || arg === '-v'
-  )
-  if (versionArgument) {
-    throw new Error(`Unknown option: ${versionArgument.split('=')[0]}`)
-  }
-
   const normalizedArgs = args.length === 0 ? ['--help'] : args
   return cli(normalizedArgs, command, {
     name: CLI_NAME,
     description: CLI_DESCRIPTION,
-    renderHeader: ctx => {
-      const rendersUsage = ctx.tokens.some(
-        token => token.kind === 'option' && (token.rawName === '--help' || token.rawName === '-h')
-      )
-      return rendersUsage || ctx.validationError ? renderHeader(ctx) : Promise.resolve('')
-    },
+    version: CLI_VERSION,
+    renderHeader: null,
     strict: false
   })
 }
