@@ -52,7 +52,7 @@
     "lint:fix": "vp lint --fix",
     "knip": "knip",
     "knip:fix": "knip --fix",
-    "prepare": "vp config"
+    "prepare": "vp config --no-agent"
   },
   "dependencies": {
     "gunshi": "^0.37.1",
