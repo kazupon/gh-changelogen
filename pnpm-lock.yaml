@@ -21,7 +21,7 @@ importers:
         specifier: ^0.37.1
         version: 0.37.1
       semver:
-        specifier: ^7.3.7
+        specifier: ^7.8.5
         version: 7.8.5
     devDependencies:
       '@gunshi/docs':
@@ -31,16 +31,16 @@ importers:
         specifier: ^0.5.1
         version: 0.5.1(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(vite-plus@0.2.7(@types/node@24.13.3)(@voidzero-dev/vite-plus-core@0.2.7(@types/node@24.13.3)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
       '@types/node':
-        specifier: ^24.0.0
+        specifier: ^24.13.3
         version: 24.13.3
       '@types/semver':
-        specifier: ^7.3.12
+        specifier: ^7.7.1
         version: 7.7.1
       bumpp:
-        specifier: ^12.0.0
+        specifier: ^12.1.1
         version: 12.1.1
       knip:
-        specifier: ^6.16.1
+        specifier: ^6.31.0
         version: 6.31.0
       node:
         specifier: runtime:24.18.1
