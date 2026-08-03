@@ -52,7 +52,23 @@ test('basic', async () => {
     token: 'foo'
   })
   expect(spyLog.mock.calls[0][0]).toMatchSnapshot()
-  expect(await isExists(resolve(process.cwd(), './CHANGELOG.md'))).toBe(true)
+  const output = resolve(process.cwd(), './CHANGELOG.md')
+  expect(await isExists(output)).toBe(true)
+  expect(await fs.readFile(output, 'utf-8')).toBe(`${spyLog.mock.calls[0][0]}\n`)
+})
+
+test('equals option syntax', async () => {
+  const spyFetchGithubRelease = vi
+    .mocked(fetchGithubRelease)
+    .mockResolvedValueOnce(release as unknown as GitHubRelease)
+  vi.spyOn(console, 'log').mockImplementation(() => {})
+
+  await main(['--repo=kazupon/gh-changelogen', `--tag=${release.tag_name}`, '--token=equals-token'])
+
+  expect(spyFetchGithubRelease).toHaveBeenCalledWith(release.tag_name, {
+    github: 'kazupon/gh-changelogen',
+    token: 'equals-token'
+  })
 })
 
 test('token default', async () => {
@@ -84,6 +100,14 @@ test('not found default token', async () => {
   await expect(
     main(['--repo', 'kazupon/gh-changelogen', '--tag', release.tag_name])
   ).rejects.toThrow('Not found GITHUB_TOKEN in env')
+  expect(fetchGithubRelease).not.toHaveBeenCalled()
+})
+
+test('does not fetch a release for invalid input', async () => {
+  vi.spyOn(console, 'error').mockImplementation(() => {})
+
+  await expect(main(['--repo', 'kazupon/gh-changelogen', '--token', 'foo'])).rejects.toThrow(/.+/)
+  expect(fetchGithubRelease).not.toHaveBeenCalled()
 })
 
 test('write changelog to output', async () => {
