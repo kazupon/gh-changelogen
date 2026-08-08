@@ -65,7 +65,7 @@
     "@types/semver": "^7.7.1",
     "bumpp": "^12.1.1",
     "knip": "^6.31.0",
-    "pkg-pr-new": "^0.0.86",
+    "pkg-pr-new": "^0.0.87",
     "vite": "catalog:",
     "vite-plus": "catalog:"
   },
