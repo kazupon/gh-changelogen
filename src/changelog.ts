@@ -58,8 +58,9 @@ export async function storeChangelogEntry(
     action = 'created'
     content = fileEntry
   } else {
+    const releaseLinkTarget = `(${options.releaseUrl})`
     const matches = findTopLevelSections(existing).filter(section =>
-      existing.slice(section.start, section.end).includes(options.releaseUrl)
+      existing.slice(section.start, section.end).includes(releaseLinkTarget)
     )
 
     if (matches.length > 1) {
