@@ -28,8 +28,8 @@ importers:
         specifier: ^0.37.1
         version: 0.37.1
       '@kazupon/vp-config':
-        specifier: ^0.5.1
-        version: 0.5.1(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(vite-plus@0.3.3(@types/node@24.13.3)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
+        specifier: ^1.0.0
+        version: 1.0.0(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(vite-plus@0.3.3(@types/node@24.13.3)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))
       '@types/node':
         specifier: ^24.13.3
         version: 24.13.3
@@ -163,10 +163,10 @@ packages:
     peerDependencies:
       eslint: ^9.0.0
 
-  '@kazupon/vp-config@0.5.1':
-    resolution: {integrity: sha512-dzXvkUaNz30AgJg5AsmavMlC19T8nqtTxqjoq9yadlJjLe3eLgIsujP5zJsvuRYeR0Q/f4W3lPFFlcfrqTmc3g==}
+  '@kazupon/vp-config@1.0.0':
+    resolution: {integrity: sha512-mUCl5dVuzDU+d426w7dAGx3T5Xs58AmJ1fO1OZTpQMTRnDZswfnOo4w3irmICHgqjR19N6B54pJfYJ1qncLayQ==}
     peerDependencies:
-      vite-plus: '>=0.1.0 <1'
+      vite-plus: ^1.0.0
     peerDependenciesMeta:
       vite-plus:
         optional: true
@@ -2115,7 +2115,7 @@ snapshots:
       '@eslint/core': 0.17.0
       eslint: 9.39.5(jiti@2.7.0)(supports-color@7.2.0)
 
-  '@kazupon/vp-config@0.5.1(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(vite-plus@0.3.3(@types/node@24.13.3)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))':
+  '@kazupon/vp-config@1.0.0(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(vite-plus@0.3.3(@types/node@24.13.3)(jiti@2.7.0)(typescript@6.0.3)(yaml@2.9.0))':
     dependencies:
       '@kazupon/eslint-plugin': 0.7.1(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))
       '@ox-jsdoc/eslint-plugin-jsdoc': 0.0.19(eslint@9.39.5(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
