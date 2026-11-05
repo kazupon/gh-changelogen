@@ -60,7 +60,7 @@
   },
   "devDependencies": {
     "@gunshi/docs": "^0.37.1",
-    "@kazupon/vp-config": "^0.5.1",
+    "@kazupon/vp-config": "^1.0.0",
     "@types/node": "^24.13.3",
     "@types/semver": "^7.7.1",
     "bumpp": "^12.1.1",
